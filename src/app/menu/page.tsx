@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useMemo, useEffect, useCallback } from 'react'
-import { Heart } from 'lucide-react'
+import { Heart, ShoppingCart } from 'lucide-react'
 import { menuItems, categories } from '@/lib/menuData'
 import type { MenuItem } from '@/lib/menuData'
 import MenuItemCard from '@/components/menu/MenuItemCard'
@@ -217,9 +217,9 @@ export default function MenuPage() {
               <button
                 onClick={openCart}
                 className="btn-gold"
-                style={{ fontSize: '0.68rem', padding: '0.55rem 1.1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', whiteSpace: 'nowrap', position: 'relative' }}
+                style={{ fontSize: '0.68rem', padding: '0.55rem 1.1rem', display: 'flex', alignItems: 'center', gap: '0.4rem', whiteSpace: 'nowrap', position: 'relative' }}
               >
-                🛒 Cart
+                <ShoppingCart size={14} strokeWidth={2} /> Cart
                 {totalItems > 0 && (
                   <span style={{ position: 'absolute', top: '-8px', right: '-8px', backgroundColor: 'var(--color-crimson)', color: '#fff', fontSize: '0.58rem', fontFamily: 'var(--font-heading)', width: '18px', height: '18px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     {totalItems}
@@ -355,13 +355,11 @@ function MostLovedChip({ item, menuItem, isFavourited, showFavourite, onToggle }
       </div>
 
       {/* Info + Add button */}
-      <div style={{ padding: '0.5rem 0.6rem 0.6rem' }}>
-        <p style={{ fontFamily: 'var(--font-heading)', fontSize: '0.65rem', color: 'var(--color-espresso)', letterSpacing: '0.04em', lineHeight: 1.3, marginBottom: '2px', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const }}>
+      <div style={{ padding: '0.5rem 0.6rem 0.6rem', display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+        <p style={{ fontFamily: 'var(--font-heading)', fontSize: '0.65rem', color: 'var(--color-espresso)', letterSpacing: '0.04em', lineHeight: 1.3, height: '1.69rem', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const }}>
           {item.name}
         </p>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-          <p style={{ fontFamily: 'var(--font-heading)', fontSize: '0.7rem', color: 'var(--color-terra)' }}>₹{item.price}</p>
-        </div>
+        <p style={{ fontFamily: 'var(--font-heading)', fontSize: '0.7rem', color: 'var(--color-terra)' }}>₹{item.price}</p>
         <button
           onClick={handleAdd}
           disabled={!!unavailable}

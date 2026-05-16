@@ -24,6 +24,17 @@ interface PopularItem {
   count: number
 }
 
+interface ReorderItem {
+  name: string
+  price: number
+  imageUrl: string | null
+  count: number
+}
+
+interface OrderSummary {
+  items: { name: string; quantity: number; unit_price: number }[]
+}
+
 export default function MenuPage() {
   const [activeCategory, setActiveCategory] = useState('all')
   const [search, setSearch] = useState('')
@@ -37,6 +48,7 @@ export default function MenuPage() {
     if (user) {
       const favs: { id: string }[] = user.user_metadata?.favourites ?? []
       setFavouriteIds(new Set(favs.map((f) => f.id)))
+      if (favs.length === 0) setPersonalTab('reorder')
     } else {
       setFavouriteIds(new Set())
     }
@@ -71,6 +83,10 @@ export default function MenuPage() {
     }).catch(() => {})
   }, [user])
 
+  // ── Personal picks ────────────────────────────────────────────────────────
+  const [personalTab, setPersonalTab]   = useState<'favourites' | 'reorder'>('favourites')
+  const [reorderItems, setReorderItems] = useState<ReorderItem[]>([])
+
   // ── Most Loved ────────────────────────────────────────────────────────────
   const [popularItems, setPopularItems] = useState<PopularItem[]>([])
 
@@ -97,6 +113,38 @@ export default function MenuPage() {
         setPopularItems(fallback)
       })
   }, [])
+
+  // Fetch order history → build "Order Again" list
+  useEffect(() => {
+    if (!user) { setReorderItems([]); return }
+    fetch('/api/orders')
+      .then((res) => (res.ok ? res.json() : []))
+      .then((orders: OrderSummary[]) => {
+        const agg: Record<string, ReorderItem> = {}
+        for (const order of orders) {
+          for (const item of order.items) {
+            const key = item.name.toLowerCase()
+            if (!agg[key]) {
+              const mi = menuItems.find((m) => m.name.toLowerCase() === key)
+              agg[key] = { name: item.name, count: 0, price: mi?.price ?? item.unit_price, imageUrl: mi?.image ?? null }
+            }
+            agg[key].count += item.quantity
+          }
+        }
+        setReorderItems(Object.values(agg).sort((a, b) => b.count - a.count).slice(0, 6))
+      })
+      .catch(() => {})
+  }, [user])
+
+  // Derive favourite items for the strip from user_metadata
+  const favouriteItems = useMemo<PopularItem[]>(() => {
+    if (!user) return []
+    const favs: { id: string; name: string; category: string; price: number; image_url?: string }[] =
+      user.user_metadata?.favourites ?? []
+    return favs.map((f) => ({
+      itemId: f.id, name: f.name, category: f.category, price: f.price, imageUrl: f.image_url ?? null, count: 0,
+    }))
+  }, [user])
 
   // ── Filter ────────────────────────────────────────────────────────────────
   const filtered = useMemo(() => {
@@ -145,6 +193,60 @@ export default function MenuPage() {
             </p>
           </div>
         </section>
+
+        {/* ── Your Picks (signed-in users only) ── */}
+        {user && (favouriteItems.length > 0 || reorderItems.length > 0) && (
+          <section style={{ backgroundColor: 'var(--color-bg-primary)', borderBottom: '1px solid var(--color-border)', padding: '1.25rem 0' }}>
+            <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 1.5rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
+                <h2 style={{ fontFamily: 'var(--font-heading)', fontSize: '0.65rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--color-espresso)', whiteSpace: 'nowrap' }}>
+                  ✦ Your Picks
+                </h2>
+                <div style={{ display: 'flex', border: '1px solid var(--color-border)', borderRadius: '999px', overflow: 'hidden' }}>
+                  <button
+                    onClick={() => setPersonalTab('favourites')}
+                    style={{ padding: '0.28rem 0.9rem', border: 'none', backgroundColor: personalTab === 'favourites' ? 'var(--color-terra)' : 'transparent', color: personalTab === 'favourites' ? '#fff' : 'var(--color-espresso-lt)', fontFamily: 'var(--font-body)', fontSize: '0.73rem', cursor: 'pointer', transition: 'all 0.2s' }}>
+                    ♡ Favourites{favouriteItems.length > 0 ? ` (${favouriteItems.length})` : ''}
+                  </button>
+                  <button
+                    onClick={() => setPersonalTab('reorder')}
+                    style={{ padding: '0.28rem 0.9rem', border: 'none', borderLeft: '1px solid var(--color-border)', backgroundColor: personalTab === 'reorder' ? 'var(--color-terra)' : 'transparent', color: personalTab === 'reorder' ? '#fff' : 'var(--color-espresso-lt)', fontFamily: 'var(--font-body)', fontSize: '0.73rem', cursor: 'pointer', transition: 'all 0.2s' }}>
+                    ↺ Order Again{reorderItems.length > 0 ? ` (${reorderItems.length})` : ''}
+                  </button>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: '0.85rem', overflowX: 'auto', paddingBottom: '0.5rem', scrollbarWidth: 'none' }}>
+                {personalTab === 'favourites' && favouriteItems.length === 0 && (
+                  <p style={{ fontFamily: 'var(--font-elegant)', fontStyle: 'italic', fontSize: '0.85rem', color: 'var(--color-espresso-lt)', padding: '0.5rem 0' }}>
+                    Tap ♡ on any dish to save it here
+                  </p>
+                )}
+                {personalTab === 'favourites' && favouriteItems.map((pop) => {
+                  const menuItem = menuItems.find((m) => m.id === pop.itemId)
+                  return (
+                    <MostLovedChip
+                      key={pop.itemId}
+                      item={pop}
+                      menuItem={menuItem}
+                      isFavourited={favouriteIds.has(pop.itemId)}
+                      showFavourite={true}
+                      onToggle={() => { if (menuItem) handleToggleFavourite(menuItem, !favouriteIds.has(pop.itemId)) }}
+                    />
+                  )
+                })}
+                {personalTab === 'reorder' && reorderItems.length === 0 && (
+                  <p style={{ fontFamily: 'var(--font-elegant)', fontStyle: 'italic', fontSize: '0.85rem', color: 'var(--color-espresso-lt)', padding: '0.5rem 0' }}>
+                    Place your first order to see it here
+                  </p>
+                )}
+                {personalTab === 'reorder' && reorderItems.map((ri) => (
+                  <ReorderChip key={ri.name} item={ri} menuItem={menuItems.find((m) => m.name.toLowerCase() === ri.name.toLowerCase())} />
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* ── Most Loved strip ── */}
         {showMostLoved && (
@@ -378,6 +480,59 @@ function MostLovedChip({ item, menuItem, isFavourited, showFavourite, onToggle }
             transition: 'background-color 0.2s',
           }}
         >
+          {added ? '✓ Added' : unavailable ? 'Sold Out' : '+ Add'}
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// ── Order Again chip ──────────────────────────────────────────────────────────
+
+function ReorderChip({ item, menuItem }: { item: ReorderItem; menuItem?: MenuItem }) {
+  const { addItem } = useCart()
+  const [added, setAdded] = useState(false)
+
+  function handleAdd(e: React.MouseEvent) {
+    e.stopPropagation()
+    if (!menuItem?.available) return
+    addItem(menuItem)
+    setAdded(true)
+    setTimeout(() => setAdded(false), 1200)
+  }
+
+  const unavailable = menuItem && !menuItem.available
+  const price = menuItem?.price ?? item.price
+  const imageUrl = menuItem?.image ?? item.imageUrl
+
+  return (
+    <div style={{
+      flexShrink: 0,
+      width: '150px',
+      border: '1px solid var(--color-border)',
+      borderRadius: '8px',
+      overflow: 'hidden',
+      backgroundColor: 'var(--color-bg-primary)',
+      opacity: unavailable ? 0.6 : 1,
+    }}>
+      <div style={{ height: '80px', backgroundColor: 'var(--color-bg-tertiary)', overflow: 'hidden', position: 'relative' }}>
+        {imageUrl
+          ? <img src={imgSrc(imageUrl)} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem' }}>🍽️</div>
+        }
+        <span style={{ position: 'absolute', bottom: '4px', left: '4px', backgroundColor: 'rgba(20,60,120,0.82)', color: '#fff', fontSize: '0.58rem', fontFamily: 'var(--font-body)', fontWeight: 700, padding: '2px 6px', borderRadius: '999px' }}>
+          ×{item.count} ordered
+        </span>
+      </div>
+      <div style={{ padding: '0.5rem 0.6rem 0.6rem', display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+        <p style={{ fontFamily: 'var(--font-heading)', fontSize: '0.65rem', color: 'var(--color-espresso)', letterSpacing: '0.04em', lineHeight: 1.3, height: '1.69rem', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const }}>
+          {item.name}
+        </p>
+        <p style={{ fontFamily: 'var(--font-heading)', fontSize: '0.7rem', color: 'var(--color-terra)' }}>₹{price}</p>
+        <button
+          onClick={handleAdd}
+          disabled={!!unavailable}
+          style={{ width: '100%', padding: '0.3rem 0', backgroundColor: added ? 'var(--color-gold)' : 'var(--color-terra)', color: '#fff', border: 'none', borderRadius: '4px', cursor: unavailable ? 'not-allowed' : 'pointer', fontFamily: 'var(--font-heading)', fontSize: '0.58rem', letterSpacing: '0.1em', textTransform: 'uppercase', transition: 'background-color 0.2s' }}>
           {added ? '✓ Added' : unavailable ? 'Sold Out' : '+ Add'}
         </button>
       </div>

@@ -1,30 +1,25 @@
 import { NextResponse } from 'next/server'
 import { createClient as serverClient } from '@/lib/supabase/server'
-import { createClient } from '@supabase/supabase-js'
-
-function adminClient() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    { auth: { autoRefreshToken: false, persistSession: false } }
-  )
-}
+import { prisma } from '@/lib/prisma'
 
 export async function GET() {
   const supabase = await serverClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const admin = adminClient()
-  const { data, error } = await admin
-    .from('addresses')
-    .select('*')
-    .eq('profile_id', user.id)
-    .order('is_default', { ascending: false })
-    .order('created_at', { ascending: false })
-
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json(data ?? [])
+  try {
+    const addresses = await prisma.address.findMany({
+      where: { profileId: user.id },
+      orderBy: [{ isDefault: 'desc' }, { createdAt: 'desc' }],
+    })
+    return NextResponse.json(addresses.map((a) => ({
+      id: a.id, label: a.label, line1: a.line1, line2: a.line2,
+      city: a.city, pincode: a.pincode, landmark: a.landmark, is_default: a.isDefault,
+    })))
+  } catch (err) {
+    console.error(err)
+    return NextResponse.json({ error: 'Failed to fetch addresses' }, { status: 500 })
+  }
 }
 
 export async function POST(request: Request) {
@@ -32,44 +27,37 @@ export async function POST(request: Request) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const body = await request.json()
-  const { label, line1, line2, city, pincode, landmark } = body
-
-  if (!line1 || !city || !pincode) {
+  const { label, line1, line2, city, pincode, landmark } = await request.json()
+  if (!line1 || !city || !pincode)
     return NextResponse.json({ error: 'line1, city and pincode are required' }, { status: 400 })
-  }
 
-  const admin = adminClient()
-
-  // Upsert profile so FK constraint is satisfied
-  await admin.from('profiles').upsert({
-    id: user.id,
-    email: user.email!,
-    full_name: user.user_metadata?.full_name ?? null,
-    updated_at: new Date().toISOString(),
-  }, { onConflict: 'id' })
-
-  // If this is the first address, make it default
-  const { count } = await admin
-    .from('addresses')
-    .select('id', { count: 'exact', head: true })
-    .eq('profile_id', user.id)
-
-  const { data, error } = await admin
-    .from('addresses')
-    .insert({
-      profile_id: user.id,
-      label: label ?? 'Home',
-      line1,
-      line2: line2 || null,
-      city,
-      pincode,
-      landmark: landmark || null,
-      is_default: count === 0,
+  try {
+    // Upsert profile for FK constraint
+    await prisma.profile.upsert({
+      where: { id: user.id },
+      update: { email: user.email!, updatedAt: new Date() },
+      create: { id: user.id, email: user.email!, fullName: user.user_metadata?.full_name ?? null },
     })
-    .select()
-    .single()
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json(data, { status: 201 })
+    const count = await prisma.address.count({ where: { profileId: user.id } })
+
+    const address = await prisma.address.create({
+      data: {
+        profileId: user.id,
+        label: label ?? 'Home',
+        line1, line2: line2 || null,
+        city, pincode,
+        landmark: landmark || null,
+        isDefault: count === 0,
+      },
+    })
+
+    return NextResponse.json({
+      id: address.id, label: address.label, line1: address.line1, line2: address.line2,
+      city: address.city, pincode: address.pincode, landmark: address.landmark, is_default: address.isDefault,
+    }, { status: 201 })
+  } catch (err) {
+    console.error(err)
+    return NextResponse.json({ error: 'Failed to save address' }, { status: 500 })
+  }
 }

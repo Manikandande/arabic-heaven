@@ -9,6 +9,7 @@ import {
 } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { createClient } from '@/lib/supabase/client'
+import Navbar from '@/components/layout/Navbar'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -81,6 +82,7 @@ export default function AccountPage() {
   const [showAddrForm, setShowAddrForm]   = useState(false)
   const [addrForm, setAddrForm]           = useState({ label: 'Home', line1: '', line2: '', city: '', pincode: '', landmark: '' })
   const [savingAddr, setSavingAddr]       = useState(false)
+  const [addrMsg, setAddrMsg]             = useState('')
 
   // Orders
   const [orders, setOrders]               = useState<Order[]>([])
@@ -195,8 +197,14 @@ export default function AccountPage() {
         setAddresses((prev) => [...prev, newAddr])
         setShowAddrForm(false)
         setAddrForm({ label: 'Home', line1: '', line2: '', city: '', pincode: '', landmark: '' })
+        setAddrMsg('Address saved successfully!')
+        setTimeout(() => setAddrMsg(''), 4000)
+      } else {
+        setAddrMsg('Failed to save address. Please try again.')
       }
-    } catch {}
+    } catch {
+      setAddrMsg('Failed to save address. Please try again.')
+    }
     setSavingAddr(false)
   }
 
@@ -281,7 +289,9 @@ export default function AccountPage() {
   const isError = (msg: string) => msg.toLowerCase().includes('fail') || msg.toLowerCase().includes('please') || msg.toLowerCase().includes('upload')
 
   return (
-    <main style={{ minHeight: '100vh', backgroundColor: 'var(--color-bg-primary)', paddingTop: '6rem', paddingBottom: '4rem' }}>
+    <>
+    <Navbar />
+    <main style={{ minHeight: '100vh', backgroundColor: 'var(--color-bg-primary)', paddingTop: '88px', paddingBottom: '4rem' }}>
       <div style={{ maxWidth: '980px', margin: '0 auto', padding: '0 1.5rem' }}>
 
         <div style={{ marginBottom: '2rem' }}>
@@ -438,7 +448,7 @@ export default function AccountPage() {
                     <div style={emptyBox}>
                       <ShoppingBag size={36} color="var(--color-border-strong)" style={{ margin: '0 auto 1rem' }} />
                       <p style={emptyText}>No orders yet</p>
-                      <Link href="/order" className="btn-gold" style={{ fontSize: '0.7rem', padding: '0.6rem 1.5rem', marginTop: '1rem', display: 'inline-flex' }}>Order Now</Link>
+                      <Link href="/menu" className="btn-gold" style={{ fontSize: '0.7rem', padding: '0.6rem 1.5rem', marginTop: '1rem', display: 'inline-flex' }}>Order Now</Link>
                     </div>
                   )
                   : (
@@ -493,6 +503,12 @@ export default function AccountPage() {
                     )
                   }
                 </div>
+
+                {addrMsg && (
+                  <div style={{ backgroundColor: addrMsg.includes('success') ? 'rgba(34,139,34,0.08)' : 'rgba(139,26,42,0.08)', border: `1px solid ${addrMsg.includes('success') ? 'rgba(34,139,34,0.25)' : 'rgba(139,26,42,0.25)'}`, borderRadius: '4px', padding: '0.65rem 1rem', marginTop: '-0.75rem' }}>
+                    <p style={{ fontFamily: 'var(--font-body)', fontSize: '0.82rem', color: addrMsg.includes('success') ? '#228B22' : 'var(--color-crimson)', margin: 0 }}>{addrMsg}</p>
+                  </div>
+                )}
 
                 {showAddrForm && (
                   <div className="card-arabic" style={{ padding: '2rem' }}>
@@ -576,6 +592,7 @@ export default function AccountPage() {
         </div>
       </div>
     </main>
+    </>
   )
 }
 

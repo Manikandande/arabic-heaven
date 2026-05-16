@@ -1,14 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient as serverClient } from '@/lib/supabase/server'
-import { createClient } from '@supabase/supabase-js'
-
-function adminClient() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    { auth: { autoRefreshToken: false, persistSession: false } }
-  )
-}
+import { prisma } from '@/lib/prisma'
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -17,26 +9,21 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const body = await request.json()
-  const admin = adminClient()
 
-  // When setting a new default, clear existing defaults first
-  if (body.is_default === true) {
-    await admin
-      .from('addresses')
-      .update({ is_default: false })
-      .eq('profile_id', user.id)
+  try {
+    if (body.is_default === true) {
+      // Clear existing defaults first
+      await prisma.address.updateMany({ where: { profileId: user.id }, data: { isDefault: false } })
+    }
+    const address = await prisma.address.update({
+      where: { id, profileId: user.id },
+      data: body.is_default !== undefined ? { isDefault: body.is_default } : body,
+    })
+    return NextResponse.json({ id: address.id, is_default: address.isDefault })
+  } catch (err) {
+    console.error(err)
+    return NextResponse.json({ error: 'Failed to update address' }, { status: 500 })
   }
-
-  const { data, error } = await admin
-    .from('addresses')
-    .update(body)
-    .eq('id', id)
-    .eq('profile_id', user.id)
-    .select()
-    .single()
-
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json(data)
 }
 
 export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -45,13 +32,11 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const admin = adminClient()
-  const { error } = await admin
-    .from('addresses')
-    .delete()
-    .eq('id', id)
-    .eq('profile_id', user.id)
-
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json({ success: true })
+  try {
+    await prisma.address.delete({ where: { id, profileId: user.id } })
+    return NextResponse.json({ success: true })
+  } catch (err) {
+    console.error(err)
+    return NextResponse.json({ error: 'Failed to delete address' }, { status: 500 })
+  }
 }

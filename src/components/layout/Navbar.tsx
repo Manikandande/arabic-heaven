@@ -4,8 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Menu, X, Phone } from 'lucide-react'
-import { signOut } from 'firebase/auth'
-import { getFirebaseAuth } from '@/lib/firebase'
+import { createClient } from '@/lib/supabase/client'
 import { useAuth } from '@/context/AuthContext'
 
 const navLinks = [
@@ -153,13 +152,13 @@ export default function Navbar() {
                   onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--color-border)'}
                 >
                   <div style={{ width: '28px', height: '28px', borderRadius: '50%', backgroundColor: 'var(--color-terra)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    {user.photoURL
-                      ? <img src={user.photoURL} alt="" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} referrerPolicy="no-referrer" />
-                      : <span style={{ fontFamily: 'var(--font-heading)', fontSize: '0.65rem', color: '#fff', fontWeight: 600 }}>{(user.displayName || user.email || 'U')[0].toUpperCase()}</span>
+                    {user.user_metadata?.avatar_url
+                      ? <img src={user.user_metadata.avatar_url} alt="" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} referrerPolicy="no-referrer" />
+                      : <span style={{ fontFamily: 'var(--font-heading)', fontSize: '0.65rem', color: '#fff', fontWeight: 600 }}>{(user.user_metadata?.full_name || user.email || 'U')[0].toUpperCase()}</span>
                     }
                   </div>
                   <span style={{ fontFamily: 'var(--font-heading)', fontSize: '0.65rem', letterSpacing: '0.08em', color: solid ? 'var(--color-espresso)' : '#fff', maxWidth: '80px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {user.displayName?.split(' ')[0] || 'Account'}
+                    {(user.user_metadata?.full_name as string)?.split(' ')[0] || 'Account'}
                   </span>
                 </button>
 
@@ -169,11 +168,11 @@ export default function Navbar() {
                     onMouseLeave={() => setUserMenuOpen(false)}
                   >
                     <div style={{ padding: '0.75rem 1rem', borderBottom: '1px solid var(--color-border)' }}>
-                      <p style={{ fontFamily: 'var(--font-heading)', fontSize: '0.65rem', letterSpacing: '0.08em', color: 'var(--color-espresso)', margin: 0 }}>{user.displayName || 'My Account'}</p>
+                      <p style={{ fontFamily: 'var(--font-heading)', fontSize: '0.65rem', letterSpacing: '0.08em', color: 'var(--color-espresso)', margin: 0 }}>{user.user_metadata?.full_name || 'My Account'}</p>
                       <p style={{ fontFamily: 'var(--font-body)', fontSize: '0.72rem', color: 'var(--color-espresso-lt)', margin: '2px 0 0', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.email}</p>
                     </div>
                     <button
-                      onClick={() => { const a = getFirebaseAuth(); if (a) signOut(a); setUserMenuOpen(false) }}
+                      onClick={() => { createClient().auth.signOut(); setUserMenuOpen(false) }}
                       style={{ width: '100%', padding: '0.7rem 1rem', textAlign: 'left', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-body)', fontSize: '0.82rem', color: 'var(--color-crimson)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
                       onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(139,26,42,0.05)'}
                       onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}

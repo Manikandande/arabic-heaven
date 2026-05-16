@@ -1,0 +1,329 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Multi-tenant ────────────────────────────────────────────────────────────
+
+model Restaurant {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  nameAr      String?
+  address     String
+  city        String
+  phone       String
+  email       String?
+  mapLat      Float?
+  mapLng      Float?
+  timezone    String   @default("Asia/Kolkata")
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  menuCategories MenuCategory[]
+  menuItems      MenuItem[]
+  orders         Order[]
+  reservations   Reservation[]
+  tables         DiningTable[]
+  offers         Offer[]
+  staff          StaffMember[]
+
+  @@map("restaurants")
+}
+
+// ─── User Profiles ────────────────────────────────────────────────────────────
+
+model Profile {
+  id           String    @id // matches Supabase auth user id
+  email        String    @unique
+  fullName     String?
+  phone        String?
+  avatarUrl    String?
+  role         Role      @default(CUSTOMER)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  orders           Order[]
+  reservations     Reservation[]
+  addresses        Address[]
+  cateringInquiries CateringInquiry[]
+
+  @@map("profiles")
+}
+
+enum Role {
+  CUSTOMER
+  STAFF
+  MANAGER
+  ADMIN
+  SUPER_ADMIN
+}
+
+// ─── Menu ────────────────────────────────────────────────────────────────────
+
+model MenuCategory {
+  id           String     @id @default(cuid())
+  restaurantId String
+  name         String
+  nameAr       String?
+  slug         String
+  description  String?
+  imageUrl     String?
+  sortOrder    Int        @default(0)
+  isActive     Boolean    @default(true)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
+  items        MenuItem[]
+
+  @@unique([restaurantId, slug])
+  @@map("menu_categories")
+}
+
+model MenuItem {
+  id           String      @id @default(cuid())
+  restaurantId String
+  categoryId   String
+  name         String
+  nameAr       String?
+  slug         String
+  description  String?
+  price        Decimal     @db.Decimal(10, 2)
+  originalPrice Decimal?   @db.Decimal(10, 2)
+  imageUrl     String?
+  isVeg        Boolean     @default(false)
+  isSpicy      Boolean     @default(false)
+  isPopular    Boolean     @default(false)
+  isAvailable  Boolean     @default(true)
+  allergens    String[]
+  sortOrder    Int         @default(0)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  restaurant   Restaurant  @relation(fields: [restaurantId], references: [id])
+  category     MenuCategory @relation(fields: [categoryId], references: [id])
+  orderItems   OrderItem[]
+
+  @@unique([restaurantId, slug])
+  @@map("menu_items")
+}
+
+// ─── Orders ──────────────────────────────────────────────────────────────────
+
+model Order {
+  id            String      @id @default(cuid())
+  restaurantId  String
+  profileId     String?
+  addressId     String?
+  orderNumber   String      @unique
+  type          OrderType
+  status        OrderStatus @default(PENDING)
+  paymentStatus PaymentStatus @default(UNPAID)
+  paymentMethod String?
+  razorpayOrderId String?
+  razorpayPaymentId String?
+  subtotal      Decimal     @db.Decimal(10, 2)
+  deliveryFee   Decimal     @db.Decimal(10, 2) @default(0)
+  discount      Decimal     @db.Decimal(10, 2) @default(0)
+  total         Decimal     @db.Decimal(10, 2)
+  notes         String?
+  guestName     String?
+  guestPhone    String?
+  guestEmail    String?
+  estimatedReadyAt DateTime?
+  completedAt   DateTime?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  restaurant    Restaurant  @relation(fields: [restaurantId], references: [id])
+  profile       Profile?    @relation(fields: [profileId], references: [id])
+  address       Address?    @relation(fields: [addressId], references: [id])
+  items         OrderItem[]
+
+  @@map("orders")
+}
+
+enum OrderType {
+  DINE_IN
+  TAKEAWAY
+  DELIVERY
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PREPARING
+  READY
+  OUT_FOR_DELIVERY
+  DELIVERED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  UNPAID
+  PAID
+  REFUNDED
+  FAILED
+}
+
+model OrderItem {
+  id         String   @id @default(cuid())
+  orderId    String
+  menuItemId String
+  quantity   Int
+  unitPrice  Decimal  @db.Decimal(10, 2)
+  totalPrice Decimal  @db.Decimal(10, 2)
+  notes      String?
+  createdAt  DateTime @default(now())
+
+  order      Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  menuItem   MenuItem @relation(fields: [menuItemId], references: [id])
+
+  @@map("order_items")
+}
+
+// ─── Addresses ───────────────────────────────────────────────────────────────
+
+model Address {
+  id         String   @id @default(cuid())
+  profileId  String
+  label      String   @default("Home")
+  line1      String
+  line2      String?
+  city       String
+  pincode    String
+  landmark   String?
+  isDefault  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  profile    Profile  @relation(fields: [profileId], references: [id])
+  orders     Order[]
+
+  @@map("addresses")
+}
+
+// ─── Reservations ────────────────────────────────────────────────────────────
+
+model DiningTable {
+  id           String   @id @default(cuid())
+  restaurantId String
+  tableNumber  String
+  capacity     Int
+  isActive     Boolean  @default(true)
+
+  restaurant   Restaurant    @relation(fields: [restaurantId], references: [id])
+  reservations Reservation[]
+
+  @@unique([restaurantId, tableNumber])
+  @@map("dining_tables")
+}
+
+model Reservation {
+  id           String            @id @default(cuid())
+  restaurantId String
+  profileId    String?
+  tableId      String?
+  guestName    String
+  guestPhone   String
+  guestEmail   String?
+  partySize    Int
+  date         DateTime          @db.Date
+  timeSlot     String
+  status       ReservationStatus @default(PENDING)
+  notes        String?
+  confirmedAt  DateTime?
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+
+  restaurant   Restaurant        @relation(fields: [restaurantId], references: [id])
+  profile      Profile?          @relation(fields: [profileId], references: [id])
+  table        DiningTable?      @relation(fields: [tableId], references: [id])
+
+  @@map("reservations")
+}
+
+enum ReservationStatus {
+  PENDING
+  CONFIRMED
+  SEATED
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+// ─── Catering ────────────────────────────────────────────────────────────────
+
+model CateringInquiry {
+  id           String          @id @default(cuid())
+  profileId    String?
+  name         String
+  phone        String
+  email        String?
+  eventType    String
+  eventDate    DateTime        @db.Date
+  guestCount   Int
+  venue        String?
+  budget       String?
+  requirements String?
+  status       CateringStatus  @default(NEW)
+  notes        String?
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  profile      Profile?        @relation(fields: [profileId], references: [id])
+
+  @@map("catering_inquiries")
+}
+
+enum CateringStatus {
+  NEW
+  CONTACTED
+  QUOTED
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
+
+// ─── Promotions ──────────────────────────────────────────────────────────────
+
+model Offer {
+  id           String    @id @default(cuid())
+  restaurantId String
+  title        String
+  description  String?
+  imageUrl     String?
+  discountType String    // 'percent' | 'flat'
+  discountValue Decimal  @db.Decimal(10, 2)
+  minOrderValue Decimal? @db.Decimal(10, 2)
+  code         String?   @unique
+  validFrom    DateTime
+  validUntil   DateTime
+  isActive     Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
+
+  @@map("offers")
+}
+
+// ─── Staff ───────────────────────────────────────────────────────────────────
+
+model StaffMember {
+  id           String   @id @default(cuid())
+  restaurantId String
+  profileId    String
+  role         Role     @default(STAFF)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
+
+  @@unique([restaurantId, profileId])
+  @@map("staff_members")
+}

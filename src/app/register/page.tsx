@@ -3,17 +3,17 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { createUserWithEmailAndPassword, updateProfile, GoogleAuthProvider, signInWithPopup } from 'firebase/auth'
-import { getFirebaseAuth } from '@/lib/firebase'
+import { createClient } from '@/lib/supabase/client'
 
 export default function RegisterPage() {
   const router = useRouter()
-  const [name, setName]           = useState('')
-  const [email, setEmail]         = useState('')
-  const [password, setPassword]   = useState('')
-  const [confirm, setConfirm]     = useState('')
-  const [error, setError]         = useState('')
-  const [loading, setLoading]     = useState(false)
+  const [name, setName]         = useState('')
+  const [email, setEmail]       = useState('')
+  const [password, setPassword] = useState('')
+  const [confirm, setConfirm]   = useState('')
+  const [error, setError]       = useState('')
+  const [success, setSuccess]   = useState(false)
+  const [loading, setLoading]   = useState(false)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -21,53 +21,56 @@ export default function RegisterPage() {
     if (password !== confirm) { setError('Passwords do not match.'); return }
     if (password.length < 6)  { setError('Password must be at least 6 characters.'); return }
     setLoading(true)
-    try {
-      const auth = getFirebaseAuth()!
-      const cred = await createUserWithEmailAndPassword(auth, email, password)
-      await updateProfile(cred.user, { displayName: name.trim() })
-      router.push('/')
-    } catch (err: any) {
-      setError(friendlyError(err.code))
-    } finally {
-      setLoading(false)
-    }
+    const supabase = createClient()
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { data: { full_name: name.trim() } },
+    })
+    setLoading(false)
+    if (error) { setError(friendlyError(error.message)); return }
+    setSuccess(true)
   }
 
   async function handleGoogle() {
     setError('')
-    try {
-      const auth = getFirebaseAuth()!
-      await signInWithPopup(auth, new GoogleAuthProvider())
-      router.push('/')
-    } catch (err: any) {
-      if (err.code !== 'auth/popup-closed-by-user') setError(friendlyError(err.code))
-    }
+    const supabase = createClient()
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: `${location.origin}/auth/callback` },
+    })
+    if (error) setError(friendlyError(error.message))
+  }
+
+  if (success) {
+    return (
+      <main style={{ minHeight: '100vh', backgroundColor: 'var(--color-bg-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '6rem 1.5rem 3rem' }}>
+        <div className="card-arabic" style={{ maxWidth: '440px', width: '100%', padding: '2.5rem', textAlign: 'center' }}>
+          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>✉️</div>
+          <h2 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.2rem', color: 'var(--color-espresso)', marginBottom: '0.75rem' }}>Check your email</h2>
+          <p style={{ fontFamily: 'var(--font-body)', fontSize: '0.88rem', color: 'var(--color-espresso-lt)', lineHeight: 1.7 }}>
+            We sent a verification link to <strong>{email}</strong>. Click it to activate your account, then{' '}
+            <Link href="/signin" style={{ color: 'var(--color-terra)' }}>sign in</Link>.
+          </p>
+        </div>
+      </main>
+    )
   }
 
   return (
     <main style={{ minHeight: '100vh', backgroundColor: 'var(--color-bg-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '6rem 1.5rem 3rem' }}>
       <div style={{ width: '100%', maxWidth: '440px' }}>
 
-        {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
           <Link href="/" style={{ textDecoration: 'none' }}>
-            <p style={{ fontFamily: 'var(--font-display)', fontSize: '1.5rem', color: 'var(--color-gold)', letterSpacing: '0.08em' }}>
-              Arabic Heaven
-            </p>
-            <p style={{ fontFamily: 'var(--font-heading)', fontSize: '0.6rem', letterSpacing: '0.35em', textTransform: 'uppercase', color: 'var(--color-espresso-lt)', marginTop: '4px' }}>
-              ✦ &nbsp; Mandi &nbsp; ✦
-            </p>
+            <p style={{ fontFamily: 'var(--font-display)', fontSize: '1.5rem', color: 'var(--color-gold)', letterSpacing: '0.08em' }}>Arabic Heaven</p>
+            <p style={{ fontFamily: 'var(--font-heading)', fontSize: '0.6rem', letterSpacing: '0.35em', textTransform: 'uppercase', color: 'var(--color-espresso-lt)', marginTop: '4px' }}>✦ &nbsp; Mandi &nbsp; ✦</p>
           </Link>
         </div>
 
-        {/* Card */}
         <div className="card-arabic" style={{ padding: '2.5rem' }}>
-          <h1 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.4rem', color: 'var(--color-espresso)', letterSpacing: '0.05em', marginBottom: '0.4rem', textAlign: 'center' }}>
-            Create Account
-          </h1>
-          <p style={{ fontFamily: 'var(--font-elegant)', fontStyle: 'italic', fontSize: '0.95rem', color: 'var(--color-espresso-lt)', textAlign: 'center', marginBottom: '2rem' }}>
-            Join us for exclusive offers & easy ordering
-          </p>
+          <h1 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.4rem', color: 'var(--color-espresso)', letterSpacing: '0.05em', marginBottom: '0.4rem', textAlign: 'center' }}>Create Account</h1>
+          <p style={{ fontFamily: 'var(--font-elegant)', fontStyle: 'italic', fontSize: '0.95rem', color: 'var(--color-espresso-lt)', textAlign: 'center', marginBottom: '2rem' }}>Join us for exclusive offers & easy ordering</p>
 
           {error && (
             <div style={{ backgroundColor: 'rgba(139,26,42,0.08)', border: '1px solid rgba(139,26,42,0.2)', borderRadius: '4px', padding: '0.75rem 1rem', marginBottom: '1.25rem' }}>
@@ -76,104 +79,45 @@ export default function RegisterPage() {
           )}
 
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
-            <div>
-              <label style={labelStyle}>Full name</label>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-                placeholder="Your name"
-                style={inputStyle}
-                onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--color-terra)'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(192,98,42,0.1)' }}
-                onBlur={(e)  => { e.currentTarget.style.borderColor = 'var(--color-border)'; e.currentTarget.style.boxShadow = 'none' }}
-              />
-            </div>
+            {[
+              { label: 'Full name',         type: 'text',     val: name,     set: setName,     ph: 'Your name' },
+              { label: 'Email address',     type: 'email',    val: email,    set: setEmail,    ph: 'you@example.com' },
+              { label: 'Password',          type: 'password', val: password, set: setPassword, ph: 'At least 6 characters' },
+              { label: 'Confirm password',  type: 'password', val: confirm,  set: setConfirm,  ph: 'Repeat your password' },
+            ].map(({ label, type, val, set, ph }) => (
+              <div key={label}>
+                <label style={labelStyle}>{label}</label>
+                <input type={type} value={val} onChange={(e) => set(e.target.value)} required placeholder={ph} style={inputStyle}
+                  onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--color-terra)'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(192,98,42,0.1)' }}
+                  onBlur={(e)  => { e.currentTarget.style.borderColor = 'var(--color-border)'; e.currentTarget.style.boxShadow = 'none' }} />
+              </div>
+            ))}
 
-            <div>
-              <label style={labelStyle}>Email address</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                placeholder="you@example.com"
-                style={inputStyle}
-                onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--color-terra)'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(192,98,42,0.1)' }}
-                onBlur={(e)  => { e.currentTarget.style.borderColor = 'var(--color-border)'; e.currentTarget.style.boxShadow = 'none' }}
-              />
-            </div>
-
-            <div>
-              <label style={labelStyle}>Password</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                placeholder="At least 6 characters"
-                style={inputStyle}
-                onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--color-terra)'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(192,98,42,0.1)' }}
-                onBlur={(e)  => { e.currentTarget.style.borderColor = 'var(--color-border)'; e.currentTarget.style.boxShadow = 'none' }}
-              />
-            </div>
-
-            <div>
-              <label style={labelStyle}>Confirm password</label>
-              <input
-                type="password"
-                value={confirm}
-                onChange={(e) => setConfirm(e.target.value)}
-                required
-                placeholder="Repeat your password"
-                style={inputStyle}
-                onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--color-terra)'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(192,98,42,0.1)' }}
-                onBlur={(e)  => { e.currentTarget.style.borderColor = 'var(--color-border)'; e.currentTarget.style.boxShadow = 'none' }}
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="btn-gold"
-              style={{ width: '100%', justifyContent: 'center', padding: '0.8rem', fontSize: '0.78rem', letterSpacing: '0.1em', marginTop: '0.4rem', opacity: loading ? 0.7 : 1, cursor: loading ? 'wait' : 'pointer' }}
-            >
+            <button type="submit" disabled={loading} className="btn-gold"
+              style={{ width: '100%', justifyContent: 'center', padding: '0.8rem', fontSize: '0.78rem', letterSpacing: '0.1em', marginTop: '0.4rem', opacity: loading ? 0.7 : 1, cursor: loading ? 'wait' : 'pointer' }}>
               {loading ? 'Creating account…' : 'Create Account'}
             </button>
           </form>
 
-          {/* Divider */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', margin: '1.5rem 0' }}>
             <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--color-border)' }} />
-            <span style={{ fontFamily: 'var(--font-body)', fontSize: '0.72rem', color: 'var(--color-espresso-lt)', letterSpacing: '0.08em' }}>or</span>
+            <span style={{ fontFamily: 'var(--font-body)', fontSize: '0.72rem', color: 'var(--color-espresso-lt)' }}>or</span>
             <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--color-border)' }} />
           </div>
 
-          {/* Google */}
-          <button
-            onClick={handleGoogle}
+          <button onClick={handleGoogle}
             style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', padding: '0.75rem', border: '1px solid var(--color-border)', borderRadius: '4px', backgroundColor: '#ffffff', cursor: 'pointer', fontFamily: 'var(--font-body)', fontSize: '0.82rem', color: 'var(--color-espresso)', transition: 'border-color 0.2s ease' }}
             onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--color-terra-light)'}
-            onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--color-border)'}
-          >
+            onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--color-border)'}>
             <GoogleIcon />
             Continue with Google
           </button>
 
           <p style={{ fontFamily: 'var(--font-body)', fontSize: '0.8rem', color: 'var(--color-espresso-lt)', textAlign: 'center', marginTop: '1.75rem' }}>
             Already have an account?{' '}
-            <Link href="/signin" style={{ color: 'var(--color-terra)', textDecoration: 'none', fontWeight: 600 }}>
-              Sign in
-            </Link>
+            <Link href="/signin" style={{ color: 'var(--color-terra)', textDecoration: 'none', fontWeight: 600 }}>Sign in</Link>
           </p>
         </div>
-
-        <p style={{ fontFamily: 'var(--font-body)', fontSize: '0.72rem', color: 'var(--color-espresso-lt)', textAlign: 'center', marginTop: '1.5rem', lineHeight: 1.6 }}>
-          By creating an account you agree to our{' '}
-          <Link href="/terms" style={{ color: 'var(--color-terra)' }}>Terms</Link>
-          {' & '}
-          <Link href="/privacy" style={{ color: 'var(--color-terra)' }}>Privacy Policy</Link>.
-        </p>
       </div>
     </main>
   )
@@ -190,43 +134,12 @@ function GoogleIcon() {
   )
 }
 
-const labelStyle: React.CSSProperties = {
-  display: 'block',
-  fontFamily: 'var(--font-heading)',
-  fontSize: '0.65rem',
-  letterSpacing: '0.12em',
-  textTransform: 'uppercase',
-  color: 'var(--color-espresso-lt)',
-  marginBottom: '0.4rem',
-}
+const labelStyle: React.CSSProperties = { display: 'block', fontFamily: 'var(--font-heading)', fontSize: '0.65rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--color-espresso-lt)', marginBottom: '0.4rem' }
+const inputStyle: React.CSSProperties = { width: '100%', padding: '0.7rem 0.9rem', border: '1px solid var(--color-border)', borderRadius: '4px', backgroundColor: 'var(--color-bg-primary)', fontFamily: 'var(--font-body)', fontSize: '0.88rem', color: 'var(--color-espresso)', outline: 'none', transition: 'border-color 0.2s ease, box-shadow 0.2s ease', boxSizing: 'border-box' }
 
-const inputStyle: React.CSSProperties = {
-  width: '100%',
-  padding: '0.7rem 0.9rem',
-  border: '1px solid var(--color-border)',
-  borderRadius: '4px',
-  backgroundColor: 'var(--color-bg-primary)',
-  fontFamily: 'var(--font-body)',
-  fontSize: '0.88rem',
-  color: 'var(--color-espresso)',
-  outline: 'none',
-  transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
-  boxSizing: 'border-box',
-}
-
-function friendlyError(code: string) {
-  switch (code) {
-    case 'auth/email-already-in-use':
-      return 'An account with this email already exists. Try signing in.'
-    case 'auth/invalid-email':
-      return 'Please enter a valid email address.'
-    case 'auth/weak-password':
-      return 'Password must be at least 6 characters.'
-    case 'auth/too-many-requests':
-      return 'Too many attempts. Please wait and try again.'
-    case 'auth/network-request-failed':
-      return 'Network error. Check your connection and try again.'
-    default:
-      return 'Something went wrong. Please try again.'
-  }
+function friendlyError(msg: string) {
+  if (msg.includes('already registered')) return 'An account with this email already exists.'
+  if (msg.includes('password')) return 'Password must be at least 6 characters.'
+  if (msg.includes('valid email')) return 'Please enter a valid email address.'
+  return 'Something went wrong. Please try again.'
 }

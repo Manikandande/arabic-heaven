@@ -96,9 +96,10 @@ export default function CheckoutPage() {
 
     // Validate address for delivery
     if (orderType === 'DELIVERY') {
-      const hasAddress = user
-        ? (selectedAddressId && !useNewAddress) || (useNewAddress && addrLine1 && addrCity && addrPincode)
-        : addrLine1 && addrCity && addrPincode
+      const usingInlineForm = !user || useNewAddress || savedAddresses.length === 0
+      const hasAddress = user && selectedAddressId && !useNewAddress
+        ? true
+        : usingInlineForm && addrLine1.trim() && addrCity.trim() && addrPincode.trim()
       if (!hasAddress) { setError('Please provide a delivery address.'); return }
     }
 

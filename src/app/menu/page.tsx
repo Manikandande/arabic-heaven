@@ -110,10 +110,12 @@ export default function MenuPage() {
 
   const personalPills = useMemo(() => {
     if (!user) return []
-    const pills = []
-    if (favouriteIds.size > 0) pills.push({ id: 'favourites', label: `♡ My Favourites (${favouriteIds.size})` })
-    if (Object.keys(orderedMap).length > 0) pills.push({ id: 'ordered', label: `↺ Ordered (${Object.keys(orderedMap).length})` })
-    return pills
+    const favCount = favouriteIds.size
+    const ordCount = Object.keys(orderedMap).length
+    return [
+      { id: 'favourites', label: favCount > 0 ? `♡ My Favourites (${favCount})` : '♡ My Favourites' },
+      { id: 'ordered',    label: ordCount > 0 ? `↺ Frequently Ordered (${ordCount})` : '↺ Frequently Ordered' },
+    ]
   }, [user, favouriteIds, orderedMap])
 
   return (
@@ -219,6 +221,11 @@ export default function MenuPage() {
                 {activeCategory === 'favourites' && (
                   <p style={{ fontFamily: 'var(--font-body)', fontSize: '0.82rem', color: 'var(--color-espresso-lt)' }}>
                     Tap ♡ on any dish to save it here
+                  </p>
+                )}
+                {activeCategory === 'ordered' && (
+                  <p style={{ fontFamily: 'var(--font-body)', fontSize: '0.82rem', color: 'var(--color-espresso-lt)' }}>
+                    Your previously ordered dishes will appear here
                   </p>
                 )}
                 <button

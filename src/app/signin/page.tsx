@@ -2,11 +2,13 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
 export default function SignInPage() {
-  const router = useRouter()
+  const router  = useRouter()
+  const params  = useSearchParams()
+  const next    = params.get('next') ?? '/'
   const [email, setEmail]       = useState('')
   const [password, setPassword] = useState('')
   const [error, setError]       = useState('')
@@ -20,7 +22,7 @@ export default function SignInPage() {
     const { error } = await supabase.auth.signInWithPassword({ email, password })
     setLoading(false)
     if (error) { setError(friendlyError(error.message)); return }
-    router.push('/')
+    router.push(next.startsWith('/') ? next : '/')
     router.refresh()
   }
 
@@ -29,7 +31,7 @@ export default function SignInPage() {
     const supabase = createClient()
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: `${location.origin}/auth/callback` },
+      options: { redirectTo: `${location.origin}/auth/callback?next=${encodeURIComponent(next)}` },
     })
     if (error) setError(friendlyError(error.message))
   }

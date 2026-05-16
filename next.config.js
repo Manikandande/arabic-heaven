@@ -1,8 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'export',
-  basePath: '/Restuarant',
-  assetPrefix: '/Restuarant/',
+  basePath: '/arabic-heaven',
+  assetPrefix: '/arabic-heaven/',
   images: {
     unoptimized: true,
     remotePatterns: [

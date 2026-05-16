@@ -1,0 +1,1406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Arabic Heaven Mandi — Royal Edition</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cinzel+Decorative:wght@700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Lato', sans-serif;
+      background: #0A0F1E;
+      color: #F5EDD8;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+    img { display: block; width: 100%; height: 100%; object-fit: cover; }
+    a { text-decoration: none; color: inherit; }
+    ul { list-style: none; }
+
+    :root {
+      --navy:        #0A0F1E;
+      --navy-mid:    #111828;
+      --navy-card:   #161F35;
+      --navy-light:  #1C2744;
+      --navy-border: rgba(212,165,32,.18);
+      --navy-border-hover: rgba(212,165,32,.55);
+      --gold:        #D4A520;
+      --gold-bright: #F0C040;
+      --gold-glow:   rgba(212,165,32,.3);
+      --amber:       #E89318;
+      --cream:       #F5EDD8;
+      --cream-70:    rgba(245,237,216,.7);
+      --cream-40:    rgba(245,237,216,.4);
+      --cream-20:    rgba(245,237,216,.18);
+      --crimson:     #C0392B;
+      --shadow-gold: 0 0 40px rgba(212,165,32,.12);
+      --shadow-card: 0 8px 40px rgba(0,0,0,.45);
+    }
+
+    .container { max-width: 1240px; margin: 0 auto; padding: 0 1.5rem; }
+    .section    { padding: 5.5rem 1.5rem; }
+
+    /* ── Gold gradient text ── */
+    .gold-text {
+      background: linear-gradient(135deg, #D4A520 0%, #F0C040 50%, #C49A1A 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* ── Section labels ── */
+    .section-label {
+      font-family: 'Cinzel', serif;
+      font-size: .6rem;
+      letter-spacing: .38em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: .9rem;
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+    }
+    .section-label::before,
+    .section-label::after {
+      content: '';
+      display: inline-block;
+      width: 28px;
+      height: 1px;
+      background: var(--gold);
+      opacity: .5;
+    }
+    .section-label.center { justify-content: center; }
+
+    .section-title {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(1.8rem, 4vw, 3rem);
+      letter-spacing: .05em;
+      line-height: 1.2;
+      margin-bottom: 1rem;
+      color: var(--cream);
+    }
+    .section-sub {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 1.15rem;
+      color: var(--cream-70);
+      max-width: 540px;
+    }
+    .section-header { text-align: center; margin-bottom: 4rem; }
+    .section-header .section-sub { margin: 0 auto; }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-block;
+      font-family: 'Cinzel', serif;
+      font-size: .72rem;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      padding: .8rem 2rem;
+      border: none;
+      cursor: pointer;
+      transition: all .28s ease;
+      border-radius: 2px;
+    }
+    .btn-gold {
+      background: linear-gradient(135deg, #C49A1A, #E8B830, #C49A1A);
+      background-size: 200%;
+      color: #0A0F1E;
+      font-weight: 700;
+      box-shadow: 0 4px 20px rgba(212,165,32,.35);
+    }
+    .btn-gold:hover {
+      background-position: right;
+      box-shadow: 0 6px 32px rgba(212,165,32,.55);
+      transform: translateY(-1px);
+    }
+    .btn-ghost {
+      background: transparent;
+      color: var(--cream);
+      border: 1px solid rgba(245,237,216,.4);
+    }
+    .btn-ghost:hover {
+      border-color: var(--gold);
+      color: var(--gold);
+      box-shadow: 0 0 20px rgba(212,165,32,.15);
+    }
+
+    /* ═══════════════════════════════════════════
+       NAVBAR
+    ═══════════════════════════════════════════ */
+    #navbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 900;
+      padding: 1.2rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all .35s ease;
+      border-bottom: 1px solid transparent;
+    }
+    #navbar.scrolled {
+      background: rgba(10,15,30,.94);
+      backdrop-filter: blur(16px);
+      border-bottom-color: var(--navy-border);
+      padding: .75rem 2rem;
+      box-shadow: 0 4px 30px rgba(0,0,0,.4);
+    }
+
+    .logo-wrap { display: flex; flex-direction: column; line-height: 1; }
+    .logo-name {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: 1.15rem;
+      letter-spacing: .06em;
+    }
+    .logo-name.gold-text { -webkit-text-fill-color: transparent; }
+    .logo-tag {
+      font-family: 'Cinzel', serif;
+      font-size: .48rem;
+      letter-spacing: .45em;
+      text-transform: uppercase;
+      color: var(--cream-40);
+      margin-top: 4px;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 2.2rem;
+    }
+    .nav-links a {
+      font-family: 'Cinzel', serif;
+      font-size: .65rem;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      color: var(--cream-70);
+      transition: color .2s;
+      position: relative;
+    }
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -3px; left: 0; right: 0;
+      height: 1px;
+      background: var(--gold);
+      transform: scaleX(0);
+      transition: transform .2s;
+    }
+    .nav-links a:hover { color: var(--gold); }
+    .nav-links a:hover::after { transform: scaleX(1); }
+
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+    }
+    .hamburger span { display: block; width: 24px; height: 2px; background: var(--cream-70); border-radius: 1px; }
+
+    .mobile-menu {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(10,15,30,.98);
+      backdrop-filter: blur(20px);
+      z-index: 800;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2.2rem;
+    }
+    .mobile-menu.open { display: flex; }
+    .mobile-menu a {
+      font-family: 'Cinzel', serif;
+      font-size: 1.1rem;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--cream-70);
+      transition: color .2s;
+    }
+    .mobile-menu a:hover { color: var(--gold); }
+    .mobile-close {
+      position: absolute;
+      top: 1.5rem; right: 1.5rem;
+      background: none;
+      border: 1px solid var(--navy-border);
+      color: var(--cream-70);
+      width: 40px; height: 40px;
+      border-radius: 2px;
+      font-size: 1.1rem;
+      cursor: pointer;
+    }
+
+    /* ═══════════════════════════════════════════
+       HERO
+    ═══════════════════════════════════════════ */
+    #hero {
+      position: relative;
+      height: 100vh;
+      min-height: 680px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      overflow: hidden;
+    }
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background-image: url('https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=1920&q=90');
+      background-size: cover;
+      background-position: center;
+      transform: scale(1.05);
+      transition: transform 10s ease;
+    }
+    .hero-bg.loaded { transform: scale(1); }
+    .hero-overlay {
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(to bottom, rgba(10,15,30,.4) 0%, rgba(10,15,30,.75) 60%, rgba(10,15,30,.95) 100%),
+        radial-gradient(ellipse at 50% 60%, rgba(212,165,32,.08) 0%, transparent 70%);
+    }
+
+    /* Gold shimmer line at top */
+    .hero-shimmer {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      opacity: .7;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      max-width: 760px;
+      padding: 0 1.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: .65rem;
+      font-family: 'Cinzel', serif;
+      font-size: .6rem;
+      letter-spacing: .3em;
+      text-transform: uppercase;
+      color: var(--gold);
+      padding: .4rem 1.25rem;
+      border: 1px solid var(--navy-border-hover);
+      background: rgba(212,165,32,.06);
+      backdrop-filter: blur(8px);
+      border-radius: 100px;
+    }
+
+    .hero-title {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: clamp(2.8rem, 8vw, 6rem);
+      line-height: 1.05;
+      letter-spacing: .04em;
+      color: #fff;
+      text-shadow: 0 4px 40px rgba(0,0,0,.6);
+    }
+    .hero-title .accent { -webkit-text-fill-color: transparent; }
+
+    .hero-divider {
+      display: flex;
+      align-items: center;
+      gap: .9rem;
+      width: 100%;
+      max-width: 320px;
+    }
+    .hero-divider-line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(to right, transparent, rgba(212,165,32,.6));
+    }
+    .hero-divider-line.right {
+      background: linear-gradient(to left, transparent, rgba(212,165,32,.6));
+    }
+    .hero-divider-gem {
+      font-family: 'Cinzel', serif;
+      font-size: .58rem;
+      letter-spacing: .4em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+
+    .hero-tagline {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: clamp(1.1rem, 2.5vw, 1.55rem);
+      color: var(--cream-70);
+      max-width: 500px;
+      line-height: 1.65;
+    }
+
+    .hero-ctas {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: .5rem;
+    }
+
+    /* Bottom stats */
+    .hero-stats {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      display: flex;
+      background: rgba(10,15,30,.7);
+      backdrop-filter: blur(12px);
+      border-top: 1px solid var(--navy-border);
+    }
+    .hero-stat {
+      flex: 1;
+      text-align: center;
+      padding: 1.1rem .5rem;
+      border-right: 1px solid var(--navy-border);
+      position: relative;
+    }
+    .hero-stat:last-child { border-right: none; }
+    .hero-stat-val {
+      font-family: 'Cinzel', serif;
+      font-size: 1.4rem;
+      letter-spacing: .04em;
+    }
+    .hero-stat-val.gold-text { -webkit-text-fill-color: transparent; }
+    .hero-stat-lbl {
+      font-size: .65rem;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--cream-40);
+      font-family: 'Cinzel', serif;
+      margin-top: 3px;
+    }
+
+    /* ═══════════════════════════════════════════
+       FEATURED DISHES
+    ═══════════════════════════════════════════ */
+    #dishes { background: var(--navy-mid); }
+
+    .dishes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .dish-card {
+      background: var(--navy-card);
+      border: 1px solid var(--navy-border);
+      border-radius: 4px;
+      overflow: hidden;
+      transition: border-color .3s ease, box-shadow .3s ease, transform .3s ease;
+      display: flex;
+      flex-direction: column;
+    }
+    .dish-card:hover {
+      border-color: var(--navy-border-hover);
+      box-shadow: var(--shadow-gold), 0 12px 50px rgba(0,0,0,.5);
+      transform: translateY(-5px);
+    }
+
+    .dish-img {
+      height: 210px;
+      overflow: hidden;
+      position: relative;
+    }
+    .dish-img img { transition: transform .55s ease; }
+    .dish-card:hover .dish-img img { transform: scale(1.08); }
+
+    /* Gold shimmer on image bottom */
+    .dish-img::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 60px;
+      background: linear-gradient(to top, var(--navy-card), transparent);
+    }
+
+    .dish-body {
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: .55rem;
+      flex: 1;
+    }
+
+    .dish-tags { display: flex; gap: .35rem; flex-wrap: wrap; }
+    .dtag {
+      font-family: 'Cinzel', serif;
+      font-size: .54rem;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      padding: .2rem .6rem;
+      border-radius: 2px;
+    }
+    .dtag-gold   { background: rgba(212,165,32,.12); color: var(--gold); border: 1px solid rgba(212,165,32,.2); }
+    .dtag-amber  { background: rgba(232,147,24,.1);  color: var(--amber); border: 1px solid rgba(232,147,24,.2); }
+    .dtag-crimson{ background: rgba(192,57,43,.12);  color: #e07068; border: 1px solid rgba(192,57,43,.2); }
+    .dtag-green  { background: rgba(50,150,70,.1);   color: #6dcf8a; border: 1px solid rgba(50,150,70,.2); }
+
+    .dish-name {
+      font-family: 'Cinzel', serif;
+      font-size: 1rem;
+      color: var(--cream);
+      letter-spacing: .04em;
+    }
+    .dish-desc {
+      font-size: .83rem;
+      color: var(--cream-70);
+      line-height: 1.72;
+      flex: 1;
+    }
+    .dish-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: .9rem;
+      border-top: 1px solid var(--navy-border);
+      margin-top: .25rem;
+    }
+    .dish-price {
+      font-family: 'Cinzel', serif;
+      font-size: 1.2rem;
+    }
+    .dish-price.gold-text { -webkit-text-fill-color: transparent; }
+    .dish-btn {
+      background: transparent;
+      border: 1px solid var(--navy-border-hover);
+      color: var(--gold);
+      font-family: 'Cinzel', serif;
+      font-size: .6rem;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      padding: .42rem 1rem;
+      cursor: pointer;
+      border-radius: 2px;
+      transition: all .22s;
+    }
+    .dish-btn:hover {
+      background: var(--gold);
+      color: var(--navy);
+      box-shadow: 0 4px 16px rgba(212,165,32,.35);
+    }
+
+    /* ═══════════════════════════════════════════
+       WHY CHOOSE US
+    ═══════════════════════════════════════════ */
+    #why {
+      background: var(--navy);
+      position: relative;
+      overflow: hidden;
+    }
+    #why::before {
+      content: '';
+      position: absolute;
+      top: -200px; right: -200px;
+      width: 600px; height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(212,165,32,.06) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .why-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+    }
+    @media (max-width: 860px) { .why-layout { grid-template-columns: 1fr; } }
+
+    .why-features {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      background: var(--navy-border);
+      border: 1px solid var(--navy-border);
+    }
+    .why-item {
+      background: var(--navy-mid);
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: .65rem;
+      transition: background .22s;
+    }
+    .why-item:hover { background: var(--navy-card); }
+    .why-icon { font-size: 1.75rem; }
+    .why-title {
+      font-family: 'Cinzel', serif;
+      font-size: .82rem;
+      color: var(--cream);
+      letter-spacing: .04em;
+    }
+    .why-body { font-size: .78rem; color: var(--cream-70); line-height: 1.72; }
+
+    .why-img-col { position: relative; }
+    .why-img-frame {
+      position: relative;
+      height: 540px;
+      overflow: hidden;
+      border: 1px solid var(--navy-border);
+    }
+    .why-img-frame::before {
+      content: '';
+      position: absolute;
+      inset: 12px;
+      border: 1px solid rgba(212,165,32,.25);
+      z-index: 1;
+      pointer-events: none;
+    }
+    .why-img-frame img { transition: transform .6s ease; }
+    .why-img-frame:hover img { transform: scale(1.05); }
+    .why-caption {
+      position: absolute;
+      bottom: 1.5rem; left: 1.5rem; right: 1.5rem;
+      z-index: 2;
+      background: rgba(10,15,30,.82);
+      backdrop-filter: blur(8px);
+      border-left: 2px solid var(--gold);
+      padding: .9rem 1.1rem;
+    }
+    .why-caption p {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 1rem;
+      color: var(--cream-70);
+    }
+
+    /* ═══════════════════════════════════════════
+       GALLERY
+    ═══════════════════════════════════════════ */
+    #gallery { background: var(--navy-mid); }
+
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      grid-template-rows: 220px 220px;
+      gap: .75rem;
+    }
+
+    .gi { position: relative; overflow: hidden; background: var(--navy-card); }
+    .gi-1 { grid-column: 1 / 6; grid-row: 1 / 3; }
+    .gi-2 { grid-column: 6 / 9; grid-row: 1 / 2; }
+    .gi-3 { grid-column: 9 / 13; grid-row: 1 / 2; }
+    .gi-4 { grid-column: 6 / 10; grid-row: 2 / 3; }
+    .gi-5 { grid-column: 10 / 13; grid-row: 2 / 3; }
+
+    @media (max-width: 900px) {
+      .gallery-grid {
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: 180px 180px 180px;
+      }
+      .gi-1 { grid-column: 1/2; grid-row: 1/2; }
+      .gi-2 { grid-column: 2/3; grid-row: 1/2; }
+      .gi-3 { grid-column: 1/2; grid-row: 2/3; }
+      .gi-4 { grid-column: 2/3; grid-row: 2/3; }
+      .gi-5 { grid-column: 1/3; grid-row: 3/4; }
+    }
+
+    .gi img { transition: transform .55s ease; }
+    .gi:hover img { transform: scale(1.08); }
+    .gi-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(10,15,30,.85) 0%, transparent 55%);
+      opacity: 0;
+      transition: opacity .3s;
+      display: flex;
+      align-items: flex-end;
+      padding: 1.1rem;
+    }
+    .gi:hover .gi-overlay { opacity: 1; }
+    .gi-label {
+      font-family: 'Cinzel', serif;
+      font-size: .65rem;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+    /* Gold border on hover */
+    .gi::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border: 1px solid transparent;
+      transition: border-color .3s;
+      pointer-events: none;
+    }
+    .gi:hover::after { border-color: rgba(212,165,32,.4); }
+
+    /* ═══════════════════════════════════════════
+       ABOUT STRIP
+    ═══════════════════════════════════════════ */
+    #about-strip {
+      position: relative;
+      padding: 6rem 1.5rem;
+      overflow: hidden;
+    }
+    .about-bg {
+      position: absolute;
+      inset: 0;
+      background-image: url('https://images.unsplash.com/photo-1556909211-36987daf7b4d?auto=format&fit=crop&w=1600&q=80');
+      background-size: cover;
+      background-position: center;
+    }
+    .about-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(10,15,30,.94) 0%, rgba(10,15,30,.80) 100%);
+    }
+    .about-content {
+      position: relative;
+      z-index: 2;
+      max-width: 700px;
+      margin: 0 auto;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.25rem;
+    }
+    .about-quote {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: clamp(1.3rem, 3vw, 1.8rem);
+      color: var(--cream);
+      line-height: 1.6;
+      padding: 1.5rem 2rem;
+      border-top: 1px solid var(--navy-border-hover);
+      border-bottom: 1px solid var(--navy-border-hover);
+      position: relative;
+    }
+    .about-quote::before,
+    .about-quote::after {
+      content: '"';
+      font-family: 'Cinzel Decorative', serif;
+      font-size: 4rem;
+      color: var(--gold);
+      opacity: .25;
+      position: absolute;
+      line-height: 1;
+    }
+    .about-quote::before { top: -.5rem; left: .5rem; }
+    .about-quote::after  { bottom: -1.5rem; right: .5rem; content: '"'; }
+
+    .about-author {
+      font-family: 'Cinzel', serif;
+      font-size: .65rem;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+
+    /* ═══════════════════════════════════════════
+       TESTIMONIALS
+    ═══════════════════════════════════════════ */
+    #testimonials { background: var(--navy); }
+
+    .testi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+      gap: 1.25rem;
+    }
+    .testi-card {
+      background: var(--navy-card);
+      border: 1px solid var(--navy-border);
+      padding: 1.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: .9rem;
+      transition: border-color .25s, box-shadow .25s;
+    }
+    .testi-card:hover {
+      border-color: rgba(212,165,32,.35);
+      box-shadow: 0 0 30px rgba(212,165,32,.07);
+    }
+    .testi-stars { color: var(--gold); font-size: 1rem; letter-spacing: 3px; }
+    .testi-text {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 1.05rem;
+      color: var(--cream-70);
+      line-height: 1.75;
+      flex: 1;
+    }
+    .testi-author { display: flex; align-items: center; gap: .75rem; }
+    .testi-av {
+      width: 42px; height: 42px;
+      border-radius: 50%;
+      border: 1px solid var(--navy-border-hover);
+      background: var(--navy-light);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Cinzel', serif;
+      font-size: .85rem;
+      color: var(--gold);
+      flex-shrink: 0;
+    }
+    .testi-name { font-family: 'Cinzel', serif; font-size: .8rem; color: var(--cream); letter-spacing: .04em; }
+    .testi-meta { font-size: .7rem; color: var(--cream-40); margin-top: 2px; }
+
+    /* ═══════════════════════════════════════════
+       RESERVE CTA
+    ═══════════════════════════════════════════ */
+    #reserve {
+      background: var(--navy-mid);
+      border-top: 1px solid var(--navy-border);
+      border-bottom: 1px solid var(--navy-border);
+      padding: 5rem 1.5rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    #reserve::before {
+      content: '';
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 700px; height: 400px;
+      background: radial-gradient(ellipse, rgba(212,165,32,.07) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .reserve-inner { position: relative; max-width: 580px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 1.25rem; }
+    .reserve-inner h2 {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(1.6rem, 4vw, 2.6rem);
+      letter-spacing: .05em;
+      color: var(--cream);
+    }
+    .reserve-inner p {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 1.15rem;
+      color: var(--cream-70);
+    }
+    .reserve-btns { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; margin-top: .25rem; }
+
+    /* ═══════════════════════════════════════════
+       PLATFORMS
+    ═══════════════════════════════════════════ */
+    #platforms {
+      background: var(--navy);
+      padding: 2.5rem 1.5rem;
+      text-align: center;
+      border-bottom: 1px solid var(--navy-border);
+    }
+    .plat-label {
+      font-family: 'Cinzel', serif;
+      font-size: .58rem;
+      letter-spacing: .35em;
+      text-transform: uppercase;
+      color: var(--cream-40);
+      margin-bottom: 1.25rem;
+    }
+    .plat-links { display: flex; flex-wrap: wrap; gap: .75rem; justify-content: center; }
+    .plat-btn {
+      display: flex;
+      align-items: center;
+      gap: .55rem;
+      padding: .6rem 1.5rem;
+      border: 1px solid var(--navy-border);
+      background: var(--navy-card);
+      font-family: 'Cinzel', serif;
+      font-size: .68rem;
+      letter-spacing: .1em;
+      color: var(--cream-70);
+      cursor: pointer;
+      border-radius: 2px;
+      transition: all .22s;
+    }
+    .plat-btn:hover { border-color: var(--navy-border-hover); color: var(--gold); }
+    .plat-dot { width: 9px; height: 9px; border-radius: 50%; }
+
+    /* ═══════════════════════════════════════════
+       FOOTER
+    ═══════════════════════════════════════════ */
+    #footer {
+      background: var(--navy-mid);
+      padding: 4.5rem 1.5rem 2rem;
+      border-top: 1px solid var(--navy-border);
+    }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 3rem;
+      margin-bottom: 3.5rem;
+    }
+    .footer-brand-name {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: 1.2rem;
+      letter-spacing: .05em;
+      margin-bottom: .3rem;
+    }
+    .footer-brand-name.gold-text { -webkit-text-fill-color: transparent; }
+    .footer-brand-tag {
+      font-family: 'Cinzel', serif;
+      font-size: .48rem;
+      letter-spacing: .4em;
+      text-transform: uppercase;
+      color: var(--cream-40);
+      margin-bottom: 1rem;
+    }
+    .footer-tagline {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: .95rem;
+      color: var(--cream-40);
+      line-height: 1.7;
+      margin-bottom: 1.25rem;
+    }
+    .footer-socials { display: flex; gap: .6rem; }
+    .footer-social {
+      width: 34px; height: 34px;
+      border: 1px solid var(--navy-border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: .9rem;
+      color: var(--cream-40);
+      cursor: pointer;
+      transition: all .22s;
+    }
+    .footer-social:hover { border-color: var(--gold); color: var(--gold); }
+
+    .footer-h {
+      font-family: 'Cinzel', serif;
+      font-size: .62rem;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 1.1rem;
+    }
+    .footer-links { display: flex; flex-direction: column; gap: .55rem; }
+    .footer-links a { font-size: .82rem; color: var(--cream-40); transition: color .2s; }
+    .footer-links a:hover { color: var(--gold); }
+
+    .footer-hours { display: flex; flex-direction: column; gap: .5rem; }
+    .fh-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: .78rem;
+      padding-bottom: .45rem;
+      border-bottom: 1px solid var(--navy-border);
+      color: var(--cream-40);
+    }
+    .fh-row span:last-child { color: var(--cream-70); white-space: nowrap; }
+
+    .footer-contact { display: flex; flex-direction: column; gap: .7rem; }
+    .fc-row { display: flex; gap: .6rem; font-size: .82rem; color: var(--cream-40); }
+    .fc-icon { color: var(--gold); flex-shrink: 0; }
+
+    .footer-bottom {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: .5rem;
+      padding-top: 1.75rem;
+      border-top: 1px solid var(--navy-border);
+      font-size: .72rem;
+      color: var(--cream-20);
+    }
+    .footer-bottom a { color: var(--cream-20); transition: color .2s; }
+    .footer-bottom a:hover { color: var(--gold); }
+
+    /* ═══════════════════════════════════════════
+       WHATSAPP
+    ═══════════════════════════════════════════ */
+    .wa-float {
+      position: fixed;
+      bottom: 1.75rem; right: 1.75rem;
+      z-index: 999;
+      width: 54px; height: 54px;
+      border-radius: 50%;
+      background: #25D366;
+      border: none;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 20px rgba(37,211,102,.45);
+      cursor: pointer;
+      transition: transform .22s, box-shadow .22s;
+      text-decoration: none;
+    }
+    .wa-float:hover { transform: scale(1.1); box-shadow: 0 6px 30px rgba(37,211,102,.6); }
+    .wa-float svg { width: 28px; height: 28px; fill: #fff; }
+
+    /* ═══════════════════════════════════════════
+       RESPONSIVE
+    ═══════════════════════════════════════════ */
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .hamburger { display: flex; }
+      .section { padding: 4rem 1.25rem; }
+      .hero-stats .hero-stat:nth-child(3),
+      .hero-stats .hero-stat:nth-child(4) { display: none; }
+    }
+    @media (max-width: 540px) {
+      .why-features { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav id="navbar">
+    <a href="#" class="logo-wrap">
+      <span class="logo-name gold-text">Arabic Heaven</span>
+      <span class="logo-tag">✦ &nbsp; Mandi &nbsp; ✦</span>
+    </a>
+    <div class="nav-links">
+      <a href="#dishes">Menu</a>
+      <a href="#why">About</a>
+      <a href="#gallery">Gallery</a>
+      <a href="#testimonials">Reviews</a>
+      <a href="#reserve">Reservations</a>
+      <a href="#" class="btn btn-gold" style="padding:.5rem 1.2rem;font-size:.65rem">Order Now</a>
+    </div>
+    <button class="hamburger" onclick="document.getElementById('mob').classList.add('open')" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- MOBILE MENU -->
+  <div class="mobile-menu" id="mob">
+    <button class="mobile-close" onclick="document.getElementById('mob').classList.remove('open')">✕</button>
+    <a href="#dishes"       onclick="document.getElementById('mob').classList.remove('open')">Menu</a>
+    <a href="#why"          onclick="document.getElementById('mob').classList.remove('open')">About</a>
+    <a href="#gallery"      onclick="document.getElementById('mob').classList.remove('open')">Gallery</a>
+    <a href="#testimonials" onclick="document.getElementById('mob').classList.remove('open')">Reviews</a>
+    <a href="#reserve"      onclick="document.getElementById('mob').classList.remove('open')">Reservations</a>
+    <a href="#" style="color:var(--gold)" onclick="document.getElementById('mob').classList.remove('open')">Order Now →</a>
+  </div>
+
+  <!-- HERO -->
+  <section id="hero">
+    <div class="hero-bg" id="heroBg"></div>
+    <div class="hero-overlay"></div>
+    <div class="hero-shimmer"></div>
+
+    <div class="hero-content">
+      <div class="hero-eyebrow">🌙 &nbsp; Halal Certified &nbsp;·&nbsp; Pondicherry's Finest</div>
+
+      <h1 class="hero-title">
+        <span class="gold-text accent">Arabic</span><br/>Heaven
+      </h1>
+
+      <div class="hero-divider">
+        <span class="hero-divider-line"></span>
+        <span class="hero-divider-gem">✦ Mandi ✦</span>
+        <span class="hero-divider-line right"></span>
+      </div>
+
+      <p class="hero-tagline">
+        Slow-smoked whole Mandi, traditional Mezze and authentic Arabian recipes — brought from the heart of Yemen to Pondicherry.
+      </p>
+
+      <div class="hero-ctas">
+        <a href="#dishes" class="btn btn-gold">Order Online</a>
+        <a href="#reserve" class="btn btn-ghost">Reserve a Table</a>
+      </div>
+    </div>
+
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="hero-stat-val gold-text">500+</div>
+        <div class="hero-stat-lbl">Daily Guests</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-val gold-text">4.9 ★</div>
+        <div class="hero-stat-lbl">Google Rating</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-val gold-text">40+</div>
+        <div class="hero-stat-lbl">Dishes</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-val gold-text">100%</div>
+        <div class="hero-stat-lbl">Halal</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURED DISHES -->
+  <section class="section" id="dishes">
+    <div class="container">
+      <div class="section-header">
+        <p class="section-label center">Our Specialities</p>
+        <h2 class="section-title">Featured Dishes</h2>
+        <p class="section-sub">Generations-old Arabian recipes, made fresh every day in our kitchen.</p>
+      </div>
+
+      <div class="dishes-grid">
+
+        <div class="dish-card">
+          <div class="dish-img">
+            <img src="https://images.unsplash.com/photo-1544025162-d76538a4b1f0?auto=format&fit=crop&w=700&q=80" alt="Lamb Mandi" loading="lazy"/>
+          </div>
+          <div class="dish-body">
+            <div class="dish-tags">
+              <span class="dtag dtag-gold">Signature</span>
+              <span class="dtag dtag-crimson">Halal</span>
+            </div>
+            <h3 class="dish-name">Lamb Mandi</h3>
+            <p class="dish-desc">Slow-smoked whole lamb leg over saffron basmati rice, cooked 6–8 hours in our traditional underground tandoor.</p>
+            <div class="dish-footer">
+              <span class="dish-price gold-text">₹580</span>
+              <button class="dish-btn">+ Add</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="dish-card">
+          <div class="dish-img">
+            <img src="https://images.unsplash.com/photo-1598103442097-8b74394b95c8?auto=format&fit=crop&w=700&q=80" alt="Chicken Mandi" loading="lazy"/>
+          </div>
+          <div class="dish-body">
+            <div class="dish-tags">
+              <span class="dtag dtag-amber">Bestseller</span>
+              <span class="dtag dtag-crimson">Halal</span>
+            </div>
+            <h3 class="dish-name">Chicken Mandi</h3>
+            <p class="dish-desc">Whole chicken marinated in Yemeni spices, slow-cooked over aromatic basmati rice with caramelised onions.</p>
+            <div class="dish-footer">
+              <span class="dish-price gold-text">₹380</span>
+              <button class="dish-btn">+ Add</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="dish-card">
+          <div class="dish-img">
+            <img src="https://images.unsplash.com/photo-1569050467447-ce54b3bbc37d?auto=format&fit=crop&w=700&q=80" alt="Mezze Platter" loading="lazy"/>
+          </div>
+          <div class="dish-body">
+            <div class="dish-tags">
+              <span class="dtag dtag-green">Vegan</span>
+              <span class="dtag dtag-gold">Sharing</span>
+            </div>
+            <h3 class="dish-name">Grand Mezze Platter</h3>
+            <p class="dish-desc">Hummus, Mutabbal, Fattoush, Tabbouleh, Pita and Olives. A grand Arabian spread for the table to share.</p>
+            <div class="dish-footer">
+              <span class="dish-price gold-text">₹320</span>
+              <button class="dish-btn">+ Add</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="dish-card">
+          <div class="dish-img">
+            <img src="https://images.unsplash.com/photo-1574653853027-5382a3d23a15?auto=format&fit=crop&w=700&q=80" alt="Mutton Kabsa" loading="lazy"/>
+          </div>
+          <div class="dish-body">
+            <div class="dish-tags">
+              <span class="dtag dtag-gold">Signature</span>
+              <span class="dtag dtag-crimson">Halal</span>
+            </div>
+            <h3 class="dish-name">Mutton Kabsa</h3>
+            <p class="dish-desc">Saudi-style mutton and spiced rice with tomato sauce, dried fruits, and a blend of 12 authentic Arabian spices.</p>
+            <div class="dish-footer">
+              <span class="dish-price gold-text">₹480</span>
+              <button class="dish-btn">+ Add</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="dish-card">
+          <div class="dish-img">
+            <img src="https://images.unsplash.com/photo-1561651188-d207bbec4ec3?auto=format&fit=crop&w=700&q=80" alt="Shawarma" loading="lazy"/>
+          </div>
+          <div class="dish-body">
+            <div class="dish-tags">
+              <span class="dtag dtag-amber">Popular</span>
+              <span class="dtag dtag-crimson">Halal</span>
+            </div>
+            <h3 class="dish-name">Shawarma Platter</h3>
+            <p class="dish-desc">Freshly sliced beef shawarma with garlic sauce, pickles, crisp fries, and warm Arabic bread.</p>
+            <div class="dish-footer">
+              <span class="dish-price gold-text">₹280</span>
+              <button class="dish-btn">+ Add</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="dish-card">
+          <div class="dish-img">
+            <img src="https://images.unsplash.com/photo-1551024506-0bccd828d307?auto=format&fit=crop&w=700&q=80" alt="Umm Ali" loading="lazy"/>
+          </div>
+          <div class="dish-body">
+            <div class="dish-tags">
+              <span class="dtag dtag-crimson">Dessert</span>
+            </div>
+            <h3 class="dish-name">Umm Ali</h3>
+            <p class="dish-desc">Egypt's warm bread pudding with cream, pistachios, raisins and coconut — the Arabian answer to dessert.</p>
+            <div class="dish-footer">
+              <span class="dish-price gold-text">₹160</span>
+              <button class="dish-btn">+ Add</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div style="text-align:center;margin-top:3rem">
+        <a href="#" class="btn btn-ghost">View Full Menu &nbsp;→</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHY CHOOSE US -->
+  <section class="section" id="why">
+    <div class="container">
+      <div class="why-layout">
+        <div>
+          <p class="section-label">Why Arabic Heaven</p>
+          <h2 class="section-title">Crafted with<br/>tradition.<br/>Served with pride.</h2>
+          <p class="section-sub" style="margin-bottom:2.5rem">Every dish carries centuries of Arabian culinary wisdom. Nothing is rushed. Nothing is compromised.</p>
+          <div class="why-features">
+            <div class="why-item">
+              <div class="why-icon">🌙</div>
+              <h3 class="why-title">Halal Certified</h3>
+              <p class="why-body">Strict Halal standards throughout — from sourcing to serving. Certificate renewed annually.</p>
+            </div>
+            <div class="why-item">
+              <div class="why-icon">🔥</div>
+              <h3 class="why-title">Traditional Tandoor</h3>
+              <p class="why-body">Our underground pit slow-smokes meat 6–8 hours over wood coals — the only authentic Mandi method.</p>
+            </div>
+            <div class="why-item">
+              <div class="why-icon">🌿</div>
+              <h3 class="why-title">Fresh Every Day</h3>
+              <p class="why-body">Local farm vegetables each morning. Fresh meat daily. No frozen shortcuts, ever.</p>
+            </div>
+            <div class="why-item">
+              <div class="why-icon">📜</div>
+              <h3 class="why-title">Heritage Recipes</h3>
+              <p class="why-body">Recipes from Yemen, Saudi Arabia and the Levant — brought from the source, unchanged.</p>
+            </div>
+          </div>
+        </div>
+        <div class="why-img-col">
+          <div class="why-img-frame">
+            <img src="https://images.unsplash.com/photo-1590846406792-0adc7f938f1d?auto=format&fit=crop&w=900&q=85" alt="Traditional cooking"/>
+            <div class="why-caption">
+              <p>"Six hours in the tandoor. Worth every minute."</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- GALLERY -->
+  <section class="section" id="gallery">
+    <div class="container">
+      <div class="section-header">
+        <p class="section-label center">A Feast for the Eyes</p>
+        <h2 class="section-title">Our Gallery</h2>
+        <p class="section-sub">Glimpses of our food, our space, and the moments we share with our guests.</p>
+      </div>
+      <div class="gallery-grid">
+        <div class="gi gi-1">
+          <img src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=700&q=80" alt="Interior"/>
+          <div class="gi-overlay"><span class="gi-label">Interior</span></div>
+        </div>
+        <div class="gi gi-2">
+          <img src="https://images.unsplash.com/photo-1529563021893-cc83c992d75d?auto=format&fit=crop&w=600&q=80" alt="Grill"/>
+          <div class="gi-overlay"><span class="gi-label">Mixed Grill</span></div>
+        </div>
+        <div class="gi gi-3">
+          <img src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=600&q=80" alt="Fresh"/>
+          <div class="gi-overlay"><span class="gi-label">Farm Fresh</span></div>
+        </div>
+        <div class="gi gi-4">
+          <img src="https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?auto=format&fit=crop&w=700&q=80" alt="Feast"/>
+          <div class="gi-overlay"><span class="gi-label">Arabian Feast</span></div>
+        </div>
+        <div class="gi gi-5">
+          <img src="https://images.unsplash.com/photo-1541014741259-de529411b96a?auto=format&fit=crop&w=600&q=80" alt="Dessert"/>
+          <div class="gi-overlay"><span class="gi-label">Desserts</span></div>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:3rem">
+        <a href="#" class="btn btn-ghost">View Full Gallery &nbsp;→</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT STRIP -->
+  <section id="about-strip">
+    <div class="about-bg"></div>
+    <div class="about-overlay"></div>
+    <div class="about-content">
+      <p class="section-label center">Our Story</p>
+      <h2 class="section-title">From Sana'a<br/>to Pondicherry</h2>
+      <blockquote class="about-quote">
+        We did not open a restaurant. We opened a window into the Arabian dining table — where a meal is never just food, but a reason to gather, to share, and to remember.
+      </blockquote>
+      <p class="about-author">— Chef Salam Al-Yemeni, Founder · Est. 2018</p>
+      <a href="#" class="btn btn-ghost" style="margin-top:.5rem">Read Our Story →</a>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <section class="section" id="testimonials">
+    <div class="container">
+      <div class="section-header">
+        <p class="section-label center">What Our Guests Say</p>
+        <h2 class="section-title">Loved by Pondicherry</h2>
+      </div>
+      <div class="testi-grid">
+        <div class="testi-card">
+          <div class="testi-stars">★★★★★</div>
+          <p class="testi-text">"The Lamb Mandi is unlike anything else in Pondicherry. The meat falls off the bone and the rice is so fragrant. My family visits every Friday — it's become our tradition."</p>
+          <div class="testi-author">
+            <div class="testi-av">AR</div>
+            <div><p class="testi-name">Ahmed Raza</p><p class="testi-meta">Pondicherry · Google Review</p></div>
+          </div>
+        </div>
+        <div class="testi-card">
+          <div class="testi-stars">★★★★★</div>
+          <p class="testi-text">"I've had Mandi in Dubai and Riyadh — Arabic Heaven matches that quality perfectly. The spice blend is exactly right and the service is warm and genuine."</p>
+          <div class="testi-author">
+            <div class="testi-av">FK</div>
+            <div><p class="testi-name">Faisal Khan</p><p class="testi-meta">Chennai · Google Review</p></div>
+          </div>
+        </div>
+        <div class="testi-card">
+          <div class="testi-stars">★★★★★</div>
+          <p class="testi-text">"We booked the private dining room for our anniversary. The ambiance, the Mezze platter, the Umm Ali — every detail was perfect. Highly recommend for special occasions."</p>
+          <div class="testi-author">
+            <div class="testi-av">PS</div>
+            <div><p class="testi-name">Priya Suresh</p><p class="testi-meta">Pondicherry · Zomato Review</p></div>
+          </div>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:2.5rem">
+        <a href="#" style="font-family:'Cinzel',serif;font-size:.65rem;letter-spacing:.15em;color:var(--gold);text-transform:uppercase;border-bottom:1px solid rgba(212,165,32,.35);padding-bottom:2px">
+          Read All Reviews on Google →
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- RESERVE CTA -->
+  <section id="reserve">
+    <div class="reserve-inner">
+      <p class="section-label center">Come Visit Us</p>
+      <h2>Reserve Your Table</h2>
+      <p>Join us for an unforgettable Arabian dining experience. Weekends fill quickly — book ahead to secure your table.</p>
+      <div class="reserve-btns">
+        <button class="btn btn-gold">Book a Table</button>
+        <button class="btn btn-ghost">Call Us</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- PLATFORMS -->
+  <section id="platforms">
+    <p class="plat-label">Also Available On</p>
+    <div class="plat-links">
+      <button class="plat-btn"><span class="plat-dot" style="background:#FC8019"></span>Order on Swiggy</button>
+      <button class="plat-btn"><span class="plat-dot" style="background:#E23744"></span>Order on Zomato</button>
+      <button class="plat-btn"><span class="plat-dot" style="background:#2e7d32"></span>Order via ONDC</button>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer id="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="footer-brand-name gold-text">Arabic Heaven</div>
+          <div class="footer-brand-tag">✦ &nbsp; Mandi &nbsp; ✦</div>
+          <p class="footer-tagline">"Every meal, a feast.<br/>Every visit, a memory."</p>
+          <div class="footer-socials">
+            <div class="footer-social">📷</div>
+            <div class="footer-social">👍</div>
+          </div>
+        </div>
+        <div>
+          <h4 class="footer-h">Quick Links</h4>
+          <div class="footer-links">
+            <a href="#">Menu</a><a href="#">Order Online</a>
+            <a href="#">Reservations</a><a href="#">Catering</a>
+            <a href="#">About Us</a><a href="#">Contact</a>
+          </div>
+        </div>
+        <div>
+          <h4 class="footer-h">Opening Hours</h4>
+          <div class="footer-hours">
+            <div class="fh-row"><span>Mon – Fri</span><span>11:00 AM – 11:00 PM</span></div>
+            <div class="fh-row"><span>Saturday</span><span>10:00 AM – 11:30 PM</span></div>
+            <div class="fh-row"><span>Sunday</span><span>10:00 AM – 10:30 PM</span></div>
+          </div>
+        </div>
+        <div>
+          <h4 class="footer-h">Contact Us</h4>
+          <div class="footer-contact">
+            <div class="fc-row"><span class="fc-icon">📍</span><span>Pondicherry, Tamil Nadu – 605001</span></div>
+            <div class="fc-row"><span class="fc-icon">📞</span><span>+91 XXXXX XXXXX</span></div>
+            <div class="fc-row"><span class="fc-icon">📧</span><span>hello@arabicheaven.com</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2025 Arabic Heaven Mandi. All rights reserved.</p>
+        <div style="display:flex;gap:1.5rem"><a href="#">Privacy Policy</a><a href="#">Terms of Service</a></div>
+        <p>🌙 Halal Certified</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- WHATSAPP -->
+  <a href="https://wa.me/919999999999" target="_blank" rel="noopener" class="wa-float" aria-label="WhatsApp">
+    <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+      <path d="M16 2C8.268 2 2 8.268 2 16c0 2.47.664 4.784 1.82 6.776L2 30l7.42-1.792A13.94 13.94 0 0016 30c7.732 0 14-6.268 14-14S23.732 2 16 2zm0 25.4a11.36 11.36 0 01-5.8-1.592l-.416-.246-4.4 1.062 1.1-4.268-.272-.44A11.4 11.4 0 014.6 16C4.6 9.704 9.704 4.6 16 4.6S27.4 9.704 27.4 16 22.296 27.4 16 27.4zm6.18-8.56c-.34-.17-2.01-.99-2.322-1.1-.31-.11-.536-.17-.76.17-.226.34-.874 1.1-1.07 1.326-.198.226-.394.254-.734.085-.34-.17-1.433-.527-2.73-1.683-1.01-.9-1.692-2.01-1.89-2.35-.197-.34-.02-.523.148-.692.152-.152.34-.394.51-.592.17-.198.226-.34.34-.566.112-.226.056-.424-.028-.594-.085-.17-.76-1.832-1.04-2.508-.274-.66-.55-.57-.76-.58l-.648-.01c-.226 0-.594.085-.904.424-.31.34-1.18 1.154-1.18 2.814s1.208 3.264 1.378 3.49c.17.226 2.378 3.632 5.762 5.09.806.348 1.434.556 1.924.712.808.258 1.544.222 2.126.134.648-.096 1.994-.814 2.276-1.6.282-.786.282-1.46.198-1.6-.084-.14-.31-.226-.65-.396z"/>
+    </svg>
+  </a>
+
+  <script>
+    // Navbar scroll
+    const nav = document.getElementById('navbar');
+    window.addEventListener('scroll', () => nav.classList.toggle('scrolled', scrollY > 60), { passive: true });
+
+    // Hero image load + Ken Burns
+    const bg = document.getElementById('heroBg');
+    setTimeout(() => bg.classList.add('loaded'), 80);
+
+    // Dish button feedback
+    document.querySelectorAll('.dish-btn').forEach(b => {
+      b.addEventListener('click', function() {
+        const orig = this.textContent;
+        this.textContent = '✓ Added';
+        this.style.background = 'var(--gold)';
+        this.style.color = 'var(--navy)';
+        setTimeout(() => { this.textContent = orig; this.style.background = ''; this.style.color = ''; }, 1400);
+      });
+    });
+
+    // Scroll reveal
+    const io = new IntersectionObserver(entries =>
+      entries.forEach(e => {
+        if (e.isIntersecting) { e.target.style.opacity = '1'; e.target.style.transform = 'translateY(0)'; }
+      }), { threshold: 0.1 }
+    );
+    document.querySelectorAll('.dish-card, .why-item, .testi-card, .gi').forEach(el => {
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(22px)';
+      el.style.transition = 'opacity .5s ease, transform .5s ease';
+      io.observe(el);
+    });
+  </script>
+</body>
+</html>

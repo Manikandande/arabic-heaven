@@ -1,0 +1,209 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import Link from 'next/link'
+import { Menu, X, ShoppingCart, Phone } from 'lucide-react'
+
+const navLinks = [
+  { label: 'Home',        href: '/' },
+  { label: 'Menu',        href: '/menu' },
+  { label: 'Order Online',href: '/order' },
+  { label: 'Reservations',href: '/reservations' },
+  { label: 'Catering',    href: '/catering' },
+  { label: 'About',       href: '/about' },
+  { label: 'Contact',     href: '/contact' },
+]
+
+export default function Navbar() {
+  const [open, setOpen]         = useState(false)
+  const [scrolled, setScrolled] = useState(false)
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 60)
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
+  return (
+    <header
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 50,
+        transition: 'all 0.4s ease',
+        backgroundColor: scrolled ? 'rgba(253,246,238,0.97)' : 'transparent',
+        borderBottom: scrolled ? '1px solid var(--color-border)' : '1px solid transparent',
+        backdropFilter: scrolled ? 'blur(12px)' : 'none',
+      }}
+    >
+      <nav
+        style={{
+          maxWidth: '1400px',
+          margin: '0 auto',
+          padding: '0 1.5rem',
+          height: '72px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}
+      >
+        {/* Logo */}
+        <Link href="/" style={{ textDecoration: 'none' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1 }}>
+            <span
+              style={{
+                fontFamily: 'var(--font-display)',
+                fontSize: '1.1rem',
+                color: 'var(--color-gold)',
+                letterSpacing: '0.08em',
+              }}
+            >
+              Arabic Heaven
+            </span>
+            <span
+              style={{
+                fontFamily: 'var(--font-heading)',
+                fontSize: '0.65rem',
+                color: scrolled ? 'var(--color-espresso-lt)' : 'rgba(255,255,255,0.6)',
+                letterSpacing: '0.35em',
+                textTransform: 'uppercase',
+                marginTop: '2px',
+              }}
+            >
+              ✦ &nbsp; Mandi &nbsp; ✦
+            </span>
+          </div>
+        </Link>
+
+        {/* Desktop Nav */}
+        <ul
+          style={{
+            display: 'none',
+            listStyle: 'none',
+            gap: '2rem',
+            alignItems: 'center',
+          }}
+          className="desktop-nav"
+        >
+          {navLinks.map((link) => (
+            <li key={link.href}>
+              <Link
+                href={link.href}
+                style={{
+                  fontFamily: 'var(--font-heading)',
+                  fontSize: '0.75rem',
+                  letterSpacing: '0.12em',
+                  textTransform: 'uppercase',
+                  color: scrolled ? 'var(--color-espresso-md)' : 'rgba(255,255,255,0.85)',
+                  textDecoration: 'none',
+                  transition: 'color 0.2s ease',
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--color-terra-light)')}
+                onMouseLeave={(e) => (e.currentTarget.style.color = scrolled ? 'var(--color-espresso-md)' : 'rgba(255,255,255,0.85)')}
+              >
+                {link.label}
+              </Link>
+            </li>
+          ))}
+        </ul>
+
+        {/* Right actions */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          {/* Phone */}
+          <a
+            href="tel:+91XXXXXXXXXX"
+            style={{
+              display: 'none',
+              alignItems: 'center',
+              gap: '0.4rem',
+              color: scrolled ? 'var(--color-espresso-md)' : 'rgba(255,255,255,0.85)',
+              textDecoration: 'none',
+              fontSize: '0.75rem',
+              fontFamily: 'var(--font-heading)',
+              letterSpacing: '0.08em',
+            }}
+            className="phone-link"
+          >
+            <Phone size={14} color="var(--color-gold)" />
+            +91 XXXXX XXXXX
+          </a>
+
+          {/* Order Now CTA */}
+          <Link href="/order" className="btn-gold" style={{ fontSize: '0.7rem', padding: '0.55rem 1.25rem' }}>
+            Order Now
+          </Link>
+
+          {/* Mobile menu toggle */}
+          <button
+            onClick={() => setOpen(!open)}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: scrolled ? 'var(--color-espresso)' : '#ffffff',
+              cursor: 'pointer',
+              padding: '0.25rem',
+            }}
+            className="mobile-menu-btn"
+            aria-label="Toggle menu"
+          >
+            {open ? <X size={22} /> : <Menu size={22} />}
+          </button>
+        </div>
+      </nav>
+
+      {/* Mobile Menu Drawer */}
+      {open && (
+        <div
+          style={{
+            backgroundColor: 'rgba(253,246,238,0.98)',
+            borderTop: '1px solid var(--color-border)',
+            padding: '1.5rem',
+          }}
+        >
+          <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+            {navLinks.map((link) => (
+              <li key={link.href}>
+                <Link
+                  href={link.href}
+                  onClick={() => setOpen(false)}
+                  style={{
+                    fontFamily: 'var(--font-heading)',
+                    fontSize: '0.85rem',
+                    letterSpacing: '0.15em',
+                    textTransform: 'uppercase',
+                    color: 'var(--color-espresso-md)',
+                    textDecoration: 'none',
+                    display: 'block',
+                    padding: '0.25rem 0',
+                    borderBottom: '1px solid var(--color-border)',
+                    paddingBottom: '1rem',
+                  }}
+                >
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+          <div style={{ marginTop: '1.5rem', display: 'flex', gap: '1rem' }}>
+            <Link href="/order" className="btn-gold" style={{ flex: 1, justifyContent: 'center' }}>
+              Order Online
+            </Link>
+            <Link href="/reservations" className="btn-outline" style={{ flex: 1, justifyContent: 'center' }}>
+              Reserve
+            </Link>
+          </div>
+        </div>
+      )}
+
+      <style>{`
+        @media (min-width: 1024px) {
+          .desktop-nav { display: flex !important; }
+          .phone-link  { display: flex !important; }
+          .mobile-menu-btn { display: none !important; }
+        }
+      `}</style>
+    </header>
+  )
+}

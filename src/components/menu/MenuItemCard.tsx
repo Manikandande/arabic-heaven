@@ -1,19 +1,41 @@
 'use client'
 
 import { useState } from 'react'
+import { Heart } from 'lucide-react'
 import type { MenuItem } from '@/lib/menuData'
 import { tagColors } from '@/lib/menuData'
 import { useCart } from '@/context/CartContext'
 import { imgSrc } from '@/lib/imagePath'
 
-export default function MenuItemCard({ item }: { item: MenuItem }) {
+interface Props {
+  item: MenuItem
+  isFavourited?: boolean
+  showFavourite?: boolean
+  onToggleFavourite?: (item: MenuItem, adding: boolean) => void
+}
+
+export default function MenuItemCard({ item, isFavourited = false, showFavourite = false, onToggleFavourite }: Props) {
   const { addItem } = useCart()
-  const [added, setAdded] = useState(false)
+  const [added, setAdded]           = useState(false)
+  const [localFav, setLocalFav]     = useState(isFavourited)
+  const [heartAnim, setHeartAnim]   = useState(false)
+
+  // Keep in sync if parent updates (e.g. on login)
+  if (localFav !== isFavourited && !heartAnim) setLocalFav(isFavourited)
 
   function handleAdd() {
     addItem(item)
     setAdded(true)
     setTimeout(() => setAdded(false), 1200)
+  }
+
+  function handleToggleFav(e: React.MouseEvent) {
+    e.stopPropagation()
+    const adding = !localFav
+    setLocalFav(adding)
+    setHeartAnim(true)
+    setTimeout(() => setHeartAnim(false), 300)
+    onToggleFavourite?.(item, adding)
   }
 
   return (
@@ -36,20 +58,52 @@ export default function MenuItemCard({ item }: { item: MenuItem }) {
             top: '1rem',
             right: '1rem',
             backgroundColor: 'var(--color-crimson)',
-            color: 'var(--color-espresso)',
+            color: '#fff',
             fontFamily: 'var(--font-heading)',
             fontSize: '0.58rem',
             letterSpacing: '0.15em',
             textTransform: 'uppercase',
             padding: '0.2rem 0.55rem',
-            zIndex: 1,
+            zIndex: 2,
           }}
         >
           Sold Out
         </div>
       )}
 
-      {/* Food image or emoji placeholder — Moorish arch shape via clip-path */}
+      {/* Favourite heart — only shown when user is logged in */}
+      {showFavourite && (
+        <button
+          onClick={handleToggleFav}
+          title={localFav ? 'Remove from favourites' : 'Add to favourites'}
+          style={{
+            position: 'absolute',
+            top: '0.7rem',
+            left: '0.7rem',
+            width: '32px',
+            height: '32px',
+            borderRadius: '50%',
+            backgroundColor: 'rgba(253,246,238,0.92)',
+            border: `1px solid ${localFav ? 'rgba(139,26,42,0.3)' : 'var(--color-border)'}`,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            zIndex: 2,
+            transition: 'transform 0.15s ease, border-color 0.2s',
+            transform: heartAnim ? 'scale(1.3)' : 'scale(1)',
+            backdropFilter: 'blur(4px)',
+          }}
+        >
+          <Heart
+            size={14}
+            fill={localFav ? 'var(--color-crimson)' : 'none'}
+            color={localFav ? 'var(--color-crimson)' : 'var(--color-espresso-lt)'}
+          />
+        </button>
+      )}
+
+      {/* Food image */}
       <div
         style={{
           width: '100%',
@@ -77,7 +131,7 @@ export default function MenuItemCard({ item }: { item: MenuItem }) {
         )}
       </div>
 
-      {/* Tags row */}
+      {/* Tags */}
       <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>
         {item.tags.map((tag) => {
           const s = tagColors[tag] ?? { bg: 'rgba(200,150,12,0.12)', color: 'var(--color-gold)' }
@@ -126,7 +180,7 @@ export default function MenuItemCard({ item }: { item: MenuItem }) {
         {item.description}
       </p>
 
-      {/* Serving size / spice */}
+      {/* Serving / spice */}
       {(item.servingSize || item.spiceLevel) && (
         <div style={{ display: 'flex', gap: '1rem' }}>
           {item.servingSize && (
@@ -142,7 +196,7 @@ export default function MenuItemCard({ item }: { item: MenuItem }) {
         </div>
       )}
 
-      {/* Price + Add button */}
+      {/* Price + Add */}
       <div
         style={{
           display: 'flex',
@@ -153,13 +207,7 @@ export default function MenuItemCard({ item }: { item: MenuItem }) {
           borderTop: '1px solid var(--color-border)',
         }}
       >
-        <span
-          style={{
-            fontFamily: 'var(--font-heading)',
-            fontSize: '1.15rem',
-            color: 'var(--color-gold)',
-          }}
-        >
+        <span style={{ fontFamily: 'var(--font-heading)', fontSize: '1.15rem', color: 'var(--color-gold)' }}>
           ₹{item.price}
         </span>
 
@@ -172,13 +220,7 @@ export default function MenuItemCard({ item }: { item: MenuItem }) {
             padding: '0.42rem 0.9rem',
             cursor: item.available ? 'pointer' : 'not-allowed',
             transition: 'all 0.25s ease',
-            ...(added
-              ? {
-                  backgroundColor: 'var(--color-gold)',
-                  color: '#ffffff',
-                  border: '1px solid var(--color-gold)',
-                }
-              : {}),
+            ...(added ? { backgroundColor: 'var(--color-gold)', color: '#ffffff', border: '1px solid var(--color-gold)' } : {}),
           }}
         >
           {added ? '✓ Added' : '+ Add'}

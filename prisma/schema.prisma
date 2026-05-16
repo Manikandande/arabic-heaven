@@ -316,6 +316,22 @@ model Offer {
   @@map("offers")
 }
 
+// ─── User Favourites ─────────────────────────────────────────────────────────
+
+model UserFavourite {
+  id           String   @id @default(cuid())
+  profileId    String
+  itemId       String
+  itemName     String
+  itemCategory String
+  itemPrice    Decimal  @db.Decimal(10, 2)
+  itemImageUrl String?
+  createdAt    DateTime @default(now())
+
+  @@unique([profileId, itemId])
+  @@map("user_favourites")
+}
+
 // ─── Staff ───────────────────────────────────────────────────────────────────
 
 model StaffMember {

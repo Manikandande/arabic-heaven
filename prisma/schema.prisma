@@ -24,6 +24,7 @@ model Restaurant {
   isActive      Boolean  @default(true)
   tableCapacity Int      @default(5)
   upiId         String?
+  soldOutItems  String[] @default([])
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 

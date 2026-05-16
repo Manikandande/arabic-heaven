@@ -12,10 +12,11 @@ interface Props {
   isFavourited?: boolean
   showFavourite?: boolean
   onToggleFavourite?: (item: MenuItem, adding: boolean) => void
-  isMostLoved?: boolean
+  communityRating?: { avg: number; count: number }
+  orderedCount?: number
 }
 
-export default function MenuItemCard({ item, isFavourited = false, showFavourite = false, onToggleFavourite, isMostLoved = false }: Props) {
+export default function MenuItemCard({ item, isFavourited = false, showFavourite = false, onToggleFavourite, communityRating, orderedCount }: Props) {
   const { addItem } = useCart()
   const [added, setAdded]           = useState(false)
   const [localFav, setLocalFav]     = useState(isFavourited)
@@ -134,11 +135,17 @@ export default function MenuItemCard({ item, isFavourited = false, showFavourite
 
       {/* Tags */}
       <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>
-        {/* Most Loved badge — shown when item ranks in community favourites */}
-        {isMostLoved && (
+        {/* Most Loved — derived from community ratings */}
+        {communityRating && communityRating.avg >= 4.0 && communityRating.count >= 2 && (
           <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', fontSize: '0.58rem', fontFamily: 'var(--font-heading)', letterSpacing: '0.1em', textTransform: 'uppercase', padding: '0.18rem 0.55rem', backgroundColor: 'rgba(139,26,42,0.1)', color: 'var(--color-crimson)', borderRadius: '2px' }}>
             <Heart size={8} fill="var(--color-crimson)" color="var(--color-crimson)" />
-            Most Loved
+            {communityRating.avg} Most Loved
+          </span>
+        )}
+        {/* Ordered ×N — signed-in user's personal history */}
+        {orderedCount && orderedCount > 0 && (
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', fontSize: '0.58rem', fontFamily: 'var(--font-heading)', letterSpacing: '0.1em', textTransform: 'uppercase', padding: '0.18rem 0.55rem', backgroundColor: 'rgba(20,60,120,0.08)', color: '#1a3d7c', borderRadius: '2px' }}>
+            ×{orderedCount} ordered
           </span>
         )}
         {item.tags.map((tag) => {

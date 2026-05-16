@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useMemo, useEffect, useCallback } from 'react'
-import { Heart, ShoppingCart } from 'lucide-react'
+import { ShoppingCart } from 'lucide-react'
 import { menuItems, categories } from '@/lib/menuData'
 import type { MenuItem } from '@/lib/menuData'
 import MenuItemCard from '@/components/menu/MenuItemCard'
@@ -13,27 +13,6 @@ import { useAuth } from '@/context/AuthContext'
 import { createClient } from '@/lib/supabase/client'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
-import { imgSrc } from '@/lib/imagePath'
-
-interface PopularItem {
-  itemId: string
-  name: string
-  category: string
-  price: number
-  imageUrl: string | null
-  count: number
-}
-
-interface ReorderItem {
-  name: string
-  price: number
-  imageUrl: string | null
-  count: number
-}
-
-interface OrderSummary {
-  items: { name: string; quantity: number; unit_price: number }[]
-}
 
 export default function MenuPage() {
   const [activeCategory, setActiveCategory] = useState('all')
@@ -48,8 +27,6 @@ export default function MenuPage() {
     if (user) {
       const favs: { id: string }[] = user.user_metadata?.favourites ?? []
       setFavouriteIds(new Set(favs.map((f) => f.id)))
-      if (favs.length > 0) setPersonalTab('favourites')
-      else setPersonalTab('popular')
     } else {
       setFavouriteIds(new Set())
     }
@@ -84,69 +61,34 @@ export default function MenuPage() {
     }).catch(() => {})
   }, [user])
 
-  // ── Personal picks ────────────────────────────────────────────────────────
-  const [personalTab, setPersonalTab]   = useState<'favourites' | 'reorder' | 'popular'>('popular')
-  const [reorderItems, setReorderItems] = useState<ReorderItem[]>([])
-
-  // ── Most Loved ────────────────────────────────────────────────────────────
-  const [popularItems, setPopularItems] = useState<PopularItem[]>([])
+  // ── Community ratings → Most Loved badge ─────────────────────────────────
+  const [ratingsMap, setRatingsMap] = useState<Record<string, { avg: number; count: number }>>({})
 
   useEffect(() => {
-    fetch('/api/favourites/popular')
-      .then((res) => (res.ok ? res.json() : []))
-      .then((data: PopularItem[]) => {
-        if (data.length > 0) {
-          setPopularItems(data)
-        } else {
-          // Fallback: Bestseller-tagged items from static menu data
-          const fallback = menuItems
-            .filter((i) => i.tags.includes('Bestseller') && i.available)
-            .slice(0, 8)
-            .map((i) => ({ itemId: i.id, name: i.name, category: i.category, price: i.price, imageUrl: i.image ?? null, count: 0 }))
-          setPopularItems(fallback)
-        }
-      })
-      .catch(() => {
-        const fallback = menuItems
-          .filter((i) => i.tags.includes('Bestseller') && i.available)
-          .slice(0, 8)
-          .map((i) => ({ itemId: i.id, name: i.name, category: i.category, price: i.price, imageUrl: i.image ?? null, count: 0 }))
-        setPopularItems(fallback)
-      })
+    fetch('/api/menu/ratings')
+      .then((res) => (res.ok ? res.json() : {}))
+      .then(setRatingsMap)
+      .catch(() => {})
   }, [])
 
-  // Fetch order history → build "Order Again" list
+  // ── User order history → "×N ordered" badge ──────────────────────────────
+  const [orderedMap, setOrderedMap] = useState<Record<string, number>>({})
+
   useEffect(() => {
-    if (!user) { setReorderItems([]); return }
+    if (!user) { setOrderedMap({}); return }
     fetch('/api/orders')
       .then((res) => (res.ok ? res.json() : []))
-      .then((orders: OrderSummary[]) => {
-        const agg: Record<string, ReorderItem> = {}
+      .then((orders: { items: { name: string; quantity: number }[] }[]) => {
+        const map: Record<string, number> = {}
         for (const order of orders) {
           for (const item of order.items) {
             const key = item.name.toLowerCase()
-            if (!agg[key]) {
-              const mi = menuItems.find((m) => m.name.toLowerCase() === key)
-              agg[key] = { name: item.name, count: 0, price: mi?.price ?? item.unit_price, imageUrl: mi?.image ?? null }
-            }
-            agg[key].count += item.quantity
+            map[key] = (map[key] ?? 0) + item.quantity
           }
         }
-        const ranked = Object.values(agg).sort((a, b) => b.count - a.count).slice(0, 6)
-        setReorderItems(ranked)
-        if (ranked.length > 0) setPersonalTab((prev) => prev === 'popular' ? 'reorder' : prev)
+        setOrderedMap(map)
       })
       .catch(() => {})
-  }, [user])
-
-  // Derive favourite items for the strip from user_metadata
-  const favouriteItems = useMemo<PopularItem[]>(() => {
-    if (!user) return []
-    const favs: { id: string; name: string; category: string; price: number; image_url?: string }[] =
-      user.user_metadata?.favourites ?? []
-    return favs.map((f) => ({
-      itemId: f.id, name: f.name, category: f.category, price: f.price, imageUrl: f.image_url ?? null, count: 0,
-    }))
   }, [user])
 
   // ── Filter ────────────────────────────────────────────────────────────────
@@ -159,8 +101,6 @@ export default function MenuPage() {
     }
     return list
   }, [activeCategory, search])
-
-  const popularItemIds = useMemo(() => new Set(popularItems.map((p) => p.itemId)), [popularItems])
 
   return (
     <>
@@ -194,80 +134,6 @@ export default function MenuPage() {
             </p>
           </div>
         </section>
-
-        {/* ── Quick-picks strip: tabbed for signed-in, Most Loved for guests ── */}
-        {(popularItems.length > 0 || user) && (
-          <section style={{ backgroundColor: 'var(--color-bg-secondary)', borderBottom: '1px solid var(--color-border)', padding: '1.5rem 0' }}>
-            <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 1.5rem' }}>
-
-              {/* Header / tab row */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.1rem', flexWrap: 'wrap' }}>
-                {!user ? (
-                  <>
-                    <Heart size={15} fill="var(--color-crimson)" color="var(--color-crimson)" />
-                    <h2 style={{ fontFamily: 'var(--font-heading)', fontSize: '0.75rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--color-espresso)' }}>
-                      Most Loved by Our Guests
-                    </h2>
-                    {popularItems[0]?.count > 0 && (
-                      <span style={{ fontFamily: 'var(--font-elegant)', fontStyle: 'italic', fontSize: '0.82rem', color: 'var(--color-espresso-lt)' }}>
-                        — based on {popularItems.reduce((s, i) => s + i.count, 0)} favourites
-                      </span>
-                    )}
-                  </>
-                ) : (
-                  <div style={{ display: 'flex', border: '1px solid var(--color-border)', borderRadius: '999px', overflow: 'hidden' }}>
-                    {favouriteItems.length > 0 && (
-                      <button onClick={() => setPersonalTab('favourites')}
-                        style={{ padding: '0.3rem 1rem', border: 'none', backgroundColor: personalTab === 'favourites' ? 'var(--color-terra)' : 'transparent', color: personalTab === 'favourites' ? '#fff' : 'var(--color-espresso-lt)', fontFamily: 'var(--font-body)', fontSize: '0.73rem', cursor: 'pointer', transition: 'all 0.2s', whiteSpace: 'nowrap' }}>
-                        ♡ My Picks ({favouriteItems.length})
-                      </button>
-                    )}
-                    {reorderItems.length > 0 && (
-                      <button onClick={() => setPersonalTab('reorder')}
-                        style={{ padding: '0.3rem 1rem', border: 'none', borderLeft: favouriteItems.length > 0 ? '1px solid var(--color-border)' : 'none', backgroundColor: personalTab === 'reorder' ? 'var(--color-terra)' : 'transparent', color: personalTab === 'reorder' ? '#fff' : 'var(--color-espresso-lt)', fontFamily: 'var(--font-body)', fontSize: '0.73rem', cursor: 'pointer', transition: 'all 0.2s', whiteSpace: 'nowrap' }}>
-                        ↺ Order Again ({reorderItems.length})
-                      </button>
-                    )}
-                    <button onClick={() => setPersonalTab('popular')}
-                      style={{ padding: '0.3rem 1rem', border: 'none', borderLeft: (favouriteItems.length > 0 || reorderItems.length > 0) ? '1px solid var(--color-border)' : 'none', backgroundColor: personalTab === 'popular' ? 'var(--color-terra)' : 'transparent', color: personalTab === 'popular' ? '#fff' : 'var(--color-espresso-lt)', fontFamily: 'var(--font-body)', fontSize: '0.73rem', cursor: 'pointer', transition: 'all 0.2s', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                      <Heart size={11} fill={personalTab === 'popular' ? '#fff' : 'var(--color-crimson)'} color={personalTab === 'popular' ? '#fff' : 'var(--color-crimson)'} /> Most Loved
-                    </button>
-                  </div>
-                )}
-              </div>
-
-              {/* Chip strip */}
-              <div style={{ display: 'flex', gap: '0.85rem', overflowX: 'auto', paddingBottom: '0.5rem', scrollbarWidth: 'none' }}>
-                {/* My Picks tab */}
-                {user && personalTab === 'favourites' && favouriteItems.map((pop) => {
-                  const menuItem = menuItems.find((m) => m.id === pop.itemId)
-                  return (
-                    <MostLovedChip key={pop.itemId} item={pop} menuItem={menuItem}
-                      isFavourited={favouriteIds.has(pop.itemId)} showFavourite
-                      onToggle={() => { if (menuItem) handleToggleFavourite(menuItem, !favouriteIds.has(pop.itemId)) }}
-                    />
-                  )
-                })}
-
-                {/* Order Again tab */}
-                {user && personalTab === 'reorder' && reorderItems.map((ri) => (
-                  <ReorderChip key={ri.name} item={ri} menuItem={menuItems.find((m) => m.name.toLowerCase() === ri.name.toLowerCase())} />
-                ))}
-
-                {/* Most Loved — guests always, signed-in on 'popular' tab */}
-                {(!user || personalTab === 'popular') && popularItems.map((pop) => {
-                  const menuItem = menuItems.find((m) => m.id === pop.itemId)
-                  return (
-                    <MostLovedChip key={pop.itemId} item={pop} menuItem={menuItem}
-                      isFavourited={favouriteIds.has(pop.itemId)} showFavourite={!!user}
-                      onToggle={() => { if (menuItem) handleToggleFavourite(menuItem, !favouriteIds.has(pop.itemId)) }}
-                    />
-                  )
-                })}
-              </div>
-            </div>
-          </section>
-        )}
 
         {/* ── Sticky filter bar ── */}
         <div
@@ -345,7 +211,8 @@ export default function MenuPage() {
                     isFavourited={favouriteIds.has(item.id)}
                     showFavourite={!!user}
                     onToggleFavourite={handleToggleFavourite}
-                    isMostLoved={popularItemIds.has(item.id)}
+                    communityRating={ratingsMap[item.name.toLowerCase()]}
+                    orderedCount={user ? orderedMap[item.name.toLowerCase()] : undefined}
                   />
                 ))}
               </div>
@@ -356,158 +223,5 @@ export default function MenuPage() {
 
       <Footer />
     </>
-  )
-}
-
-// ── Most Loved chip component ─────────────────────────────────────────────────
-
-function MostLovedChip({ item, menuItem, isFavourited, showFavourite, onToggle }: {
-  item: PopularItem
-  menuItem?: MenuItem
-  isFavourited: boolean
-  showFavourite: boolean
-  onToggle: () => void
-}) {
-  const { addItem } = useCart()
-  const [localFav, setLocalFav] = useState(isFavourited)
-  const [added, setAdded]       = useState(false)
-
-  if (localFav !== isFavourited) setLocalFav(isFavourited)
-
-  function handleToggle(e: React.MouseEvent) {
-    e.stopPropagation()
-    setLocalFav((v) => !v)
-    onToggle()
-  }
-
-  function handleAdd(e: React.MouseEvent) {
-    e.stopPropagation()
-    if (!menuItem?.available) return
-    addItem(menuItem)
-    setAdded(true)
-    setTimeout(() => setAdded(false), 1200)
-  }
-
-  const unavailable = menuItem && !menuItem.available
-
-  return (
-    <div
-      style={{
-        flexShrink: 0,
-        width: '150px',
-        border: '1px solid var(--color-border)',
-        borderRadius: '8px',
-        overflow: 'hidden',
-        backgroundColor: 'var(--color-bg-primary)',
-        position: 'relative',
-        opacity: unavailable ? 0.6 : 1,
-      }}
-    >
-      {/* Image */}
-      <div style={{ height: '80px', backgroundColor: 'var(--color-bg-tertiary)', overflow: 'hidden', position: 'relative' }}>
-        {item.imageUrl ? (
-          <img src={imgSrc(item.imageUrl)} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-        ) : (
-          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem' }}>🍽️</div>
-        )}
-
-        {/* Favourite count badge */}
-        {item.count > 0 && (
-          <span style={{ position: 'absolute', bottom: '4px', left: '4px', backgroundColor: 'rgba(139,26,42,0.85)', color: '#fff', fontSize: '0.6rem', fontFamily: 'var(--font-body)', fontWeight: 700, padding: '2px 6px', borderRadius: '999px', display: 'flex', alignItems: 'center', gap: '3px' }}>
-            <Heart size={8} fill="#fff" color="#fff" /> {item.count}
-          </span>
-        )}
-
-        {/* Heart toggle */}
-        {showFavourite && (
-          <button
-            onClick={handleToggle}
-            style={{ position: 'absolute', top: '4px', right: '4px', width: '24px', height: '24px', borderRadius: '50%', backgroundColor: 'rgba(253,246,238,0.92)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
-            <Heart size={11} fill={localFav ? 'var(--color-crimson)' : 'none'} color={localFav ? 'var(--color-crimson)' : 'var(--color-espresso-lt)'} />
-          </button>
-        )}
-      </div>
-
-      {/* Info + Add button */}
-      <div style={{ padding: '0.5rem 0.6rem 0.6rem', display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-        <p style={{ fontFamily: 'var(--font-heading)', fontSize: '0.65rem', color: 'var(--color-espresso)', letterSpacing: '0.04em', lineHeight: 1.3, height: '1.69rem', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const }}>
-          {item.name}
-        </p>
-        <p style={{ fontFamily: 'var(--font-heading)', fontSize: '0.7rem', color: 'var(--color-terra)' }}>₹{item.price}</p>
-        <button
-          onClick={handleAdd}
-          disabled={!!unavailable}
-          style={{
-            width: '100%',
-            padding: '0.3rem 0',
-            backgroundColor: added ? 'var(--color-gold)' : 'var(--color-terra)',
-            color: '#fff',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: unavailable ? 'not-allowed' : 'pointer',
-            fontFamily: 'var(--font-heading)',
-            fontSize: '0.58rem',
-            letterSpacing: '0.1em',
-            textTransform: 'uppercase',
-            transition: 'background-color 0.2s',
-          }}
-        >
-          {added ? '✓ Added' : unavailable ? 'Sold Out' : '+ Add'}
-        </button>
-      </div>
-    </div>
-  )
-}
-
-// ── Order Again chip ──────────────────────────────────────────────────────────
-
-function ReorderChip({ item, menuItem }: { item: ReorderItem; menuItem?: MenuItem }) {
-  const { addItem } = useCart()
-  const [added, setAdded] = useState(false)
-
-  function handleAdd(e: React.MouseEvent) {
-    e.stopPropagation()
-    if (!menuItem?.available) return
-    addItem(menuItem)
-    setAdded(true)
-    setTimeout(() => setAdded(false), 1200)
-  }
-
-  const unavailable = menuItem && !menuItem.available
-  const price = menuItem?.price ?? item.price
-  const imageUrl = menuItem?.image ?? item.imageUrl
-
-  return (
-    <div style={{
-      flexShrink: 0,
-      width: '150px',
-      border: '1px solid var(--color-border)',
-      borderRadius: '8px',
-      overflow: 'hidden',
-      backgroundColor: 'var(--color-bg-primary)',
-      opacity: unavailable ? 0.6 : 1,
-    }}>
-      <div style={{ height: '80px', backgroundColor: 'var(--color-bg-tertiary)', overflow: 'hidden', position: 'relative' }}>
-        {imageUrl
-          ? <img src={imgSrc(imageUrl)} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-          : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem' }}>🍽️</div>
-        }
-        <span style={{ position: 'absolute', bottom: '4px', left: '4px', backgroundColor: 'rgba(20,60,120,0.82)', color: '#fff', fontSize: '0.58rem', fontFamily: 'var(--font-body)', fontWeight: 700, padding: '2px 6px', borderRadius: '999px' }}>
-          ×{item.count} ordered
-        </span>
-      </div>
-      <div style={{ padding: '0.5rem 0.6rem 0.6rem', display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-        <p style={{ fontFamily: 'var(--font-heading)', fontSize: '0.65rem', color: 'var(--color-espresso)', letterSpacing: '0.04em', lineHeight: 1.3, height: '1.69rem', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const }}>
-          {item.name}
-        </p>
-        <p style={{ fontFamily: 'var(--font-heading)', fontSize: '0.7rem', color: 'var(--color-terra)' }}>₹{price}</p>
-        <button
-          onClick={handleAdd}
-          disabled={!!unavailable}
-          style={{ width: '100%', padding: '0.3rem 0', backgroundColor: added ? 'var(--color-gold)' : 'var(--color-terra)', color: '#fff', border: 'none', borderRadius: '4px', cursor: unavailable ? 'not-allowed' : 'pointer', fontFamily: 'var(--font-heading)', fontSize: '0.58rem', letterSpacing: '0.1em', textTransform: 'uppercase', transition: 'background-color 0.2s' }}>
-          {added ? '✓ Added' : unavailable ? 'Sold Out' : '+ Add'}
-        </button>
-      </div>
-    </div>
   )
 }

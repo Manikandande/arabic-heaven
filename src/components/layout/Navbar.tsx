@@ -121,7 +121,7 @@ export default function Navbar() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           {/* Phone */}
           <a
-            href="tel:+91XXXXXXXXXX"
+            href="tel:+917942696368"
             style={{
               alignItems: 'center',
               gap: '0.4rem',
@@ -134,7 +134,7 @@ export default function Navbar() {
             className="phone-link"
           >
             <Phone size={14} color="var(--color-gold)" />
-            +91 XXXXX XXXXX
+            +91 79426 96368
           </a>
 
           {/* Order Now CTA */}

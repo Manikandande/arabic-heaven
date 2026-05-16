@@ -579,9 +579,9 @@ export default function ReservationsPage() {
                   Location
                 </h3>
                 {[
-                  { icon: '📍', text: 'Pondicherry, Tamil Nadu – 605001' },
-                  { icon: '📞', text: '+91 XXXXX XXXXX', href: 'tel:+91XXXXXXXXXX' },
-                  { icon: '💬', text: 'WhatsApp us', href: 'https://wa.me/919999999999' },
+                  { icon: '📍', text: '1, By-Pass Road, Ariyapalayam, Villianur, Puducherry – 605110' },
+                  { icon: '📞', text: '+91 79426 96368', href: 'tel:+917942696368' },
+                  { icon: '💬', text: 'WhatsApp us', href: 'https://wa.me/917942696368' },
                 ].map(({ icon, text, href }) => (
                   <div key={text} style={{ display: 'flex', gap: '0.6rem', alignItems: 'center' }}>
                     <span style={{ fontSize: '0.9rem', flexShrink: 0 }}>{icon}</span>

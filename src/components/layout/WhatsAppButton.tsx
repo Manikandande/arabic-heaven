@@ -1,7 +1,7 @@
 'use client'
 
 export default function WhatsAppButton() {
-  const phone = '919999999999' // replace with actual WhatsApp Business number
+  const phone = '917942696368'
   const message = encodeURIComponent('Hello! I would like to know more about Arabic Heaven Mandi.')
   const href = `https://wa.me/${phone}?text=${message}`
 

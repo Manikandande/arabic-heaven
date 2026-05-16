@@ -135,20 +135,25 @@ export default function MenuItemCard({ item, isFavourited = false, showFavourite
 
       {/* Tags */}
       <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>
-        {/* Most Loved — derived from community ratings */}
-        {communityRating && communityRating.avg >= 4.0 && communityRating.count >= 2 && (
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', fontSize: '0.58rem', fontFamily: 'var(--font-heading)', letterSpacing: '0.1em', textTransform: 'uppercase', padding: '0.18rem 0.55rem', backgroundColor: 'rgba(139,26,42,0.1)', color: 'var(--color-crimson)', borderRadius: '2px' }}>
-            <Heart size={8} fill="var(--color-crimson)" color="var(--color-crimson)" />
-            {communityRating.avg} Most Loved
-          </span>
-        )}
+        {/* Most Loved — real rating when available, falls back to Bestseller tag */}
+        {(() => {
+          const hasRating = communityRating && communityRating.avg >= 4.0 && communityRating.count >= 2
+          const isBestseller = item.tags.includes('Bestseller')
+          if (!hasRating && !isBestseller) return null
+          return (
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', fontSize: '0.58rem', fontFamily: 'var(--font-heading)', letterSpacing: '0.1em', textTransform: 'uppercase', padding: '0.18rem 0.55rem', backgroundColor: 'rgba(139,26,42,0.1)', color: 'var(--color-crimson)', borderRadius: '2px' }}>
+              <Heart size={8} fill="var(--color-crimson)" color="var(--color-crimson)" />
+              {hasRating ? `${communityRating!.avg} ` : ''}Most Loved
+            </span>
+          )
+        })()}
         {/* Ordered ×N — signed-in user's personal history */}
         {orderedCount && orderedCount > 0 && (
           <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', fontSize: '0.58rem', fontFamily: 'var(--font-heading)', letterSpacing: '0.1em', textTransform: 'uppercase', padding: '0.18rem 0.55rem', backgroundColor: 'rgba(20,60,120,0.08)', color: '#1a3d7c', borderRadius: '2px' }}>
             ×{orderedCount} ordered
           </span>
         )}
-        {item.tags.map((tag) => {
+        {item.tags.filter((t) => t !== 'Bestseller').map((tag) => {
           const s = tagColors[tag] ?? { bg: 'rgba(200,150,12,0.12)', color: 'var(--color-gold)' }
           return (
             <span

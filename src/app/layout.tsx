@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import { CartProvider } from '@/context/CartContext'
+import { AuthProvider } from '@/context/AuthContext'
 import WhatsAppButton from '@/components/layout/WhatsAppButton'
 
 export const metadata: Metadata = {
@@ -85,10 +86,12 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <CartProvider>
-          {children}
-          <WhatsAppButton />
-        </CartProvider>
+        <AuthProvider>
+          <CartProvider>
+            {children}
+            <WhatsAppButton />
+          </CartProvider>
+        </AuthProvider>
       </body>
     </html>
   )

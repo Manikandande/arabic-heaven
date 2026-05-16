@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import type { MenuItem } from '@/lib/menuData'
 import { tagColors } from '@/lib/menuData'
 import { useCart } from '@/context/CartContext'
@@ -66,16 +67,12 @@ export default function MenuItemCard({ item }: { item: MenuItem }) {
         }}
       >
         {item.image ? (
-          <img
+          <Image
             src={item.image}
             alt={item.name}
-            style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-              objectPosition: 'center',
-              display: 'block',
-            }}
+            fill
+            style={{ objectFit: 'cover', objectPosition: 'center' }}
+            unoptimized={item.image.startsWith('http')}
           />
         ) : (
           item.emoji

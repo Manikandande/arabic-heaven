@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 
 const dishes = [
   {
@@ -9,21 +10,21 @@ const dishes = [
     description: 'Slow-smoked whole lamb leg over fragrant saffron basmati rice, cooked in a traditional underground tandoor.',
     price: '₹580',
     tags: ['Signature', 'Halal'],
-    image: '/images/Create_image_of_Mandi_biriyani,_202605151903.jpeg',
+    image: '/images/Lamb Mandi.jpeg',
   },
   {
     name: 'Chicken Mandi',
     description: 'Tender whole chicken marinated in Yemeni spices, slow-cooked over aromatic basmati rice with caramelised onions.',
     price: '₹380',
     tags: ['Bestseller', 'Halal'],
-    image: '/images/Create_images_of_Mandi_biriyani,_202605151901.jpeg',
+    image: '/images/Chicken Mandi.jpeg',
   },
   {
     name: 'Mezze Platter',
     description: 'A grand spread of Hummus, Mutabbal, Fattoush, Tabbouleh, Pita bread, and Olives. Perfect for sharing.',
     price: '₹320',
     tags: ['Vegan', 'Sharing'],
-    image: '/images/Macro_style_Professional_food_photography_202605151909.jpeg',
+    image: '/images/Macro_style_Professional_food_photography_202605151911-2.jpeg',
   },
   {
     name: 'Mutton Kabsa',
@@ -37,14 +38,14 @@ const dishes = [
     description: 'Freshly sliced beef shawarma served with garlic sauce, pickles, fries, and Arabic bread.',
     price: '₹280',
     tags: ['Popular', 'Halal'],
-    image: '/images/Macro_style_Professional_food_photography_202605151911.jpeg',
+    image: '/images/Mixed Grill Platter.jpeg',
   },
   {
-    name: 'Umm Ali',
-    description: "Egypt's beloved warm bread pudding with cream, nuts, raisins, and coconut — the Arabian answer to dessert.",
-    price: '₹160',
-    tags: ['Dessert'],
-    image: '/images/Macro_style_Professional_food_photography_202605151912.jpeg',
+    name: 'Falafel & Hummus',
+    description: 'Golden crispy falafel with stone-ground hummus, warm pita and a drizzle of extra-virgin olive oil.',
+    price: '₹280',
+    tags: ['Vegan', 'Vegetarian'],
+    image: '/images/Macro_style_Professional_food_photography_202605151909-2.jpeg',
   },
 ]
 
@@ -285,17 +286,12 @@ function DishCard({ dish }: { dish: typeof dishes[0] }) {
       style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden', height: '100%' }}
     >
       {/* Image */}
-      <div style={{ height: '220px', overflow: 'hidden', backgroundColor: 'var(--color-bg-tertiary)' }}>
-        <img
+      <div style={{ height: '220px', overflow: 'hidden', backgroundColor: 'var(--color-bg-tertiary)', position: 'relative' }}>
+        <Image
           src={dish.image}
           alt={dish.name}
-          style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            transition: 'transform 0.5s ease',
-            display: 'block',
-          }}
+          fill
+          style={{ objectFit: 'cover', transition: 'transform 0.5s ease' }}
           onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.07)')}
           onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
         />

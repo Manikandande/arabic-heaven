@@ -113,8 +113,8 @@ export default function Footer() {
             {/* Social icons */}
             <div style={{ display: 'flex', gap: '0.75rem' }}>
               {[
-                { Icon: InstagramIcon, href: '#', label: 'Instagram' },
-                { Icon: FacebookIcon,  href: '#', label: 'Facebook' },
+                { Icon: InstagramIcon, href: 'https://www.instagram.com/arabicheavenmandi/', label: 'Instagram' },
+                { Icon: FacebookIcon,  href: 'https://www.facebook.com/people/Arabic-Heaven-Mandi/61571577514906/', label: 'Facebook' },
               ].map(({ Icon, href, label }) => (
                 <a
                   key={label}
@@ -235,7 +235,7 @@ export default function Footer() {
             </h4>
             <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
               {[
-                { Icon: MapPin, text: 'Pondicherry, Tamil Nadu, India – 605001' },
+                { Icon: MapPin, text: '1, By-Pass Road, Ariyapalayam, Villianur, Puducherry – 605110' },
                 { Icon: Phone,  text: '+91 XXXXX XXXXX', href: 'tel:+91XXXXXXXXXX' },
                 { Icon: Mail,   text: 'hello@arabicheaven.com', href: 'mailto:hello@arabicheaven.com' },
               ].map(({ Icon, text, href }) => (

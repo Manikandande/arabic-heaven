@@ -275,7 +275,7 @@ export default function ContactPage() {
                   Get in Touch
                 </h3>
                 {[
-                  { icon: '📍', label: 'Address', value: 'Pondicherry, Tamil Nadu, India – 605001' },
+                  { icon: '📍', label: 'Address', value: '1, By-Pass Road, Ariyapalayam, Villianur, Puducherry – 605110' },
                   { icon: '📞', label: 'Phone', value: '+91 XXXXX XXXXX', href: 'tel:+91XXXXXXXXXX' },
                   { icon: '📧', label: 'Email', value: 'hello@arabicheaven.com', href: 'mailto:hello@arabicheaven.com' },
                   { icon: '💬', label: 'WhatsApp', value: 'Chat with us', href: 'https://wa.me/919999999999' },
@@ -322,7 +322,7 @@ export default function ContactPage() {
                 </div>
                 <iframe
                   title="Arabic Heaven Mandi — Pondicherry location"
-                  src="https://www.openstreetmap.org/export/embed.html?bbox=79.8150,11.9100,79.8550,11.9500&layer=mapnik&marker=11.9344,79.8360"
+                  src="https://www.openstreetmap.org/export/embed.html?bbox=79.7450,11.9450,79.8050,11.9900&layer=mapnik&marker=11.9678,79.7668"
                   width="100%"
                   height="220"
                   style={{ display: 'block', border: 'none', filter: 'invert(0.85) hue-rotate(180deg)' }}
@@ -330,7 +330,7 @@ export default function ContactPage() {
                 />
                 <div style={{ padding: '0.55rem 1rem', backgroundColor: 'var(--color-bg-secondary)', borderTop: '1px solid var(--color-border)' }}>
                   <a
-                    href="https://www.openstreetmap.org/?mlat=11.9344&mlon=79.8360#map=15/11.9344/79.8360"
+                    href="https://www.openstreetmap.org/?mlat=11.9678&mlon=79.7668#map=15/11.9678/79.7668"
                     target="_blank"
                     rel="noopener noreferrer"
                     style={{ fontSize: '0.7rem', color: 'var(--color-gold)', fontFamily: 'var(--font-body)', textDecoration: 'none' }}
@@ -358,7 +358,7 @@ export default function ContactPage() {
                   Our second location serves the Villianur community with the same kitchen and same standards.
                 </p>
                 <p style={{ fontSize: '0.78rem', color: 'var(--color-espresso)', fontFamily: 'var(--font-body)' }}>
-                  📍 Villianur, Pondicherry – 605110
+                  📍 1, By-Pass Road, Ariyapalayam, Villianur, Puducherry – 605110
                 </p>
               </div>
             </div>

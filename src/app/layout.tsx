@@ -77,8 +77,10 @@ export default function RootLayout({
               acceptsReservations: true,
               address: {
                 '@type': 'PostalAddress',
-                addressLocality: 'Pondicherry',
+                streetAddress: '1, By-Pass Road, Ariyapalayam',
+                addressLocality: 'Villianur',
                 addressRegion: 'Puducherry',
+                postalCode: '605110',
                 addressCountry: 'IN',
               },
             }),

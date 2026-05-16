@@ -78,17 +78,18 @@ export default function MenuPage() {
     if (!user) { setOrderedMap({}); return }
     fetch('/api/orders')
       .then((res) => (res.ok ? res.json() : []))
-      .then((orders: { items: { name: string; quantity: number }[] }[]) => {
+      .then((orders: { items: { name?: string | null; quantity: number }[] }[]) => {
         const map: Record<string, number> = {}
         for (const order of orders) {
           for (const item of order.items) {
-            const key = item.name.toLowerCase()
+            const key = item.name?.toLowerCase()
+            if (!key) continue
             map[key] = (map[key] ?? 0) + item.quantity
           }
         }
         setOrderedMap(map)
       })
-      .catch(() => {})
+      .catch((err) => { console.error('orderedMap fetch failed:', err) })
   }, [user])
 
   // ── Filter ────────────────────────────────────────────────────────────────
@@ -110,12 +111,13 @@ export default function MenuPage() {
 
   const personalPills = useMemo(() => {
     if (!user) return []
-    const favCount = favouriteIds.size
+    const pills: { id: string; label: string }[] = []
+    if (favouriteIds.size > 0)
+      pills.push({ id: 'favourites', label: `♡ My Favourites (${favouriteIds.size})` })
     const ordCount = Object.keys(orderedMap).length
-    return [
-      { id: 'favourites', label: favCount > 0 ? `♡ My Favourites (${favCount})` : '♡ My Favourites' },
-      { id: 'ordered',    label: ordCount > 0 ? `↺ Frequently Ordered (${ordCount})` : '↺ Frequently Ordered' },
-    ]
+    if (ordCount > 0)
+      pills.push({ id: 'ordered', label: `↺ Frequently Ordered (${ordCount})` })
+    return pills
   }, [user, favouriteIds, orderedMap])
 
   return (
@@ -162,28 +164,60 @@ export default function MenuPage() {
             padding: '1rem 1.5rem',
           }}
         >
-          <div style={{ maxWidth: '1400px', margin: '0 auto', display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center', justifyContent: 'space-between' }}>
-            <CategoryFilter
-              categories={categories}
-              active={activeCategory}
-              onChange={(id) => { setActiveCategory(id); setSearch('') }}
-              extraPills={personalPills}
-            />
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-              <MenuSearchBar value={search} onChange={setSearch} />
-              <button
-                onClick={openCart}
-                className="btn-gold"
-                style={{ fontSize: '0.68rem', padding: '0.55rem 1.1rem', display: 'flex', alignItems: 'center', gap: '0.4rem', whiteSpace: 'nowrap', position: 'relative' }}
-              >
-                <ShoppingCart size={14} strokeWidth={2} /> Cart
-                {totalItems > 0 && (
-                  <span style={{ position: 'absolute', top: '-8px', right: '-8px', backgroundColor: 'var(--color-crimson)', color: '#fff', fontSize: '0.58rem', fontFamily: 'var(--font-heading)', width: '18px', height: '18px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    {totalItems}
-                  </span>
-                )}
-              </button>
+          <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+            {/* Row 1: category pills + search + cart */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center', justifyContent: 'space-between' }}>
+              <CategoryFilter
+                categories={categories}
+                active={activeCategory}
+                onChange={(id) => { setActiveCategory(id); setSearch('') }}
+              />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <MenuSearchBar value={search} onChange={setSearch} />
+                <button
+                  onClick={openCart}
+                  className="btn-gold"
+                  style={{ fontSize: '0.68rem', padding: '0.55rem 1.1rem', display: 'flex', alignItems: 'center', gap: '0.4rem', whiteSpace: 'nowrap', position: 'relative' }}
+                >
+                  <ShoppingCart size={14} strokeWidth={2} /> Cart
+                  {totalItems > 0 && (
+                    <span style={{ position: 'absolute', top: '-8px', right: '-8px', backgroundColor: 'var(--color-crimson)', color: '#fff', fontSize: '0.58rem', fontFamily: 'var(--font-heading)', width: '18px', height: '18px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      {totalItems}
+                    </span>
+                  )}
+                </button>
+              </div>
             </div>
+
+            {/* Row 2: personal pills — only shown when user has favourites or order history */}
+            {personalPills.length > 0 && (
+              <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.65rem' }}>
+                {personalPills.map((pill) => {
+                  const isActive = pill.id === activeCategory
+                  return (
+                    <button
+                      key={pill.id}
+                      onClick={() => { setActiveCategory(pill.id); setSearch('') }}
+                      style={{
+                        fontFamily: 'var(--font-heading)',
+                        fontSize: '0.68rem',
+                        letterSpacing: '0.12em',
+                        textTransform: 'uppercase',
+                        padding: '0.4rem 1rem',
+                        backgroundColor: isActive ? 'var(--color-terra)' : 'transparent',
+                        color: isActive ? '#fff' : 'var(--color-terra)',
+                        border: `1px solid ${isActive ? 'var(--color-terra)' : 'rgba(192,98,42,0.4)'}`,
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {pill.label}
+                    </button>
+                  )
+                })}
+              </div>
+            )}
           </div>
         </div>
 
@@ -202,7 +236,15 @@ export default function MenuPage() {
           <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
             <p style={{ fontFamily: 'var(--font-body)', fontSize: '0.8rem', color: 'var(--color-espresso-lt)', marginBottom: '1.5rem' }}>
               {filtered.length} dish{filtered.length !== 1 ? 'es' : ''}
-              {search ? ` matching "${search}"` : activeCategory !== 'all' ? ` in ${categories.find((c) => c.id === activeCategory)?.label}` : ''}
+              {search
+                ? ` matching "${search}"`
+                : activeCategory === 'favourites'
+                ? ' in My Favourites'
+                : activeCategory === 'ordered'
+                ? ' in Frequently Ordered'
+                : activeCategory !== 'all'
+                ? ` in ${categories.find((c) => c.id === activeCategory)?.label ?? activeCategory}`
+                : ''}
               {user && favouriteIds.size > 0 && ` · ${favouriteIds.size} favourited`}
             </p>
 

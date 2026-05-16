@@ -28,7 +28,7 @@ export default function RegisterPage() {
       options: { data: { full_name: name.trim() } },
     })
     setLoading(false)
-    if (error) { setError(friendlyError(error.message)); return }
+    if (error) { console.error('Signup error:', error.message, error); setError(friendlyError(error.message)); return }
     setSuccess(true)
   }
 
@@ -138,8 +138,13 @@ const labelStyle: React.CSSProperties = { display: 'block', fontFamily: 'var(--f
 const inputStyle: React.CSSProperties = { width: '100%', padding: '0.7rem 0.9rem', border: '1px solid var(--color-border)', borderRadius: '4px', backgroundColor: 'var(--color-bg-primary)', fontFamily: 'var(--font-body)', fontSize: '0.88rem', color: 'var(--color-espresso)', outline: 'none', transition: 'border-color 0.2s ease, box-shadow 0.2s ease', boxSizing: 'border-box' }
 
 function friendlyError(msg: string) {
-  if (msg.includes('already registered')) return 'An account with this email already exists.'
-  if (msg.includes('password')) return 'Password must be at least 6 characters.'
-  if (msg.includes('valid email')) return 'Please enter a valid email address.'
-  return 'Something went wrong. Please try again.'
+  const m = msg.toLowerCase()
+  if (m.includes('already registered') || m.includes('already exists') || m.includes('user already')) return 'An account with this email already exists.'
+  if (m.includes('password')) return 'Password must be at least 6 characters.'
+  if (m.includes('valid email') || m.includes('invalid email')) return 'Please enter a valid email address.'
+  if (m.includes('rate limit') || m.includes('too many') || m.includes('email rate')) return 'Too many attempts. Please wait a few minutes and try again.'
+  if (m.includes('network') || m.includes('fetch')) return 'Network error. Please check your connection and try again.'
+  if (m.includes('signup_disabled') || m.includes('signups not allowed')) return 'New registrations are temporarily disabled. Please try again later.'
+  if (m.includes('database')) return 'A server error occurred. Please try again in a moment.'
+  return `Something went wrong: ${msg}`
 }

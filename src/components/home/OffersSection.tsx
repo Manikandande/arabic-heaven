@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { imgSrc } from '@/lib/imagePath'
 
 const offers = [
   {
@@ -11,7 +12,7 @@ const offers = [
     originalPrice: '₹1,800',
     offerPrice: '₹1,399',
     saving: 'Save ₹401',
-    icon: '🍖',
+    image: '/images/lamb-mandi.jpeg',
     tag: 'Offer of the Day',
     href: '/order',
     accent: 'var(--color-crimson)',
@@ -25,7 +26,7 @@ const offers = [
     originalPrice: '₹520',
     offerPrice: '₹380',
     saving: 'Save ₹140',
-    icon: '🕐',
+    image: '/images/chicken-mandi.jpeg',
     tag: 'Lunch Special',
     href: '/order',
     accent: 'var(--color-gold)',
@@ -39,7 +40,7 @@ const offers = [
     originalPrice: '₹400',
     offerPrice: '₹320',
     saving: 'Save ₹80',
-    icon: '🥙',
+    image: '/images/Macro_style_Professional_food_photography_202605151911-2.jpeg',
     tag: 'Vegan Friendly',
     href: '/order',
     accent: '#3a7028',
@@ -53,7 +54,7 @@ const offers = [
     originalPrice: '₹750',
     offerPrice: '₹580',
     saving: 'Save ₹170',
-    icon: '🔥',
+    image: '/images/mixed-grill-platter.jpeg',
     tag: 'Weekend Special',
     href: '/order',
     accent: 'var(--color-terra)',
@@ -126,19 +127,27 @@ function OfferBanner({ offer }: { offer: typeof offers[0] }) {
       style={{
         display: 'flex',
         flexDirection: 'row',
-        alignItems: 'center',
-        gap: '2rem',
-        padding: '2rem 2.5rem',
+        alignItems: 'stretch',
+        gap: '0',
+        padding: '0',
         background: 'linear-gradient(135deg, rgba(139,26,42,0.04) 0%, rgba(253,246,238,1) 60%)',
         borderLeft: '4px solid var(--color-crimson)',
         flexWrap: 'wrap',
+        overflow: 'hidden',
       }}
     >
-      {/* Icon */}
-      <div style={{ fontSize: '3.5rem', flexShrink: 0 }}>{offer.icon}</div>
+      {/* Image */}
+      <div style={{ width: '260px', minWidth: '200px', flexShrink: 0, position: 'relative', minHeight: '200px' }}>
+        <img
+          src={imgSrc(offer.image)}
+          alt={offer.title}
+          style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', minHeight: '200px' }}
+        />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, transparent 70%, rgba(253,246,238,0.6))' }} />
+      </div>
 
       {/* Text */}
-      <div style={{ flex: 1, minWidth: '220px' }}>
+      <div style={{ flex: 1, minWidth: '220px', padding: '2rem 1.5rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.5rem', flexWrap: 'wrap' }}>
           <span style={{
             fontSize: '0.58rem',
@@ -186,7 +195,7 @@ function OfferBanner({ offer }: { offer: typeof offers[0] }) {
       </div>
 
       {/* Pricing + CTA */}
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.6rem', flexShrink: 0 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'center', gap: '0.6rem', flexShrink: 0, padding: '2rem 2rem 2rem 0' }}>
         <div style={{ textAlign: 'right' }}>
           <span style={{
             fontFamily: 'var(--font-body)',
@@ -234,24 +243,36 @@ function OfferCard({ offer }: { offer: typeof offers[0] }) {
   return (
     <div
       className="card-arabic"
-      style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.75rem', borderTop: `3px solid ${offer.accent}` }}
+      style={{ padding: '0', display: 'flex', flexDirection: 'column', gap: '0', borderTop: `3px solid ${offer.accent}`, overflow: 'hidden' }}
     >
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <span style={{ fontSize: '2rem' }}>{offer.icon}</span>
+      {/* Image */}
+      <div style={{ height: '180px', overflow: 'hidden', position: 'relative' }}>
+        <img
+          src={imgSrc(offer.image)}
+          alt={offer.title}
+          style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'transform 0.5s ease' }}
+          onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.06)')}
+          onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
+        />
         <span style={{
+          position: 'absolute',
+          top: '0.75rem',
+          right: '0.75rem',
           fontSize: '0.58rem',
           fontFamily: 'var(--font-heading)',
           letterSpacing: '0.15em',
           textTransform: 'uppercase',
           padding: '0.2rem 0.55rem',
-          backgroundColor: offer.badgeColor.bg,
+          backgroundColor: 'rgba(253,246,238,0.92)',
           color: offer.badgeColor.color,
           borderRadius: '2px',
+          backdropFilter: 'blur(4px)',
         }}>
           {offer.badge}
         </span>
       </div>
 
+      <div style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.6rem', flex: 1 }}>
       <div>
         <p style={{ fontFamily: 'var(--font-heading)', fontSize: '0.6rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: offer.accent, marginBottom: '0.3rem' }}>
           {offer.tag}
@@ -298,6 +319,7 @@ function OfferCard({ offer }: { offer: typeof offers[0] }) {
         <Link href={offer.href} className="btn-outline" style={{ fontSize: '0.62rem', padding: '0.42rem 1rem' }}>
           Order →
         </Link>
+      </div>
       </div>
     </div>
   )

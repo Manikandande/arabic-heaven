@@ -15,8 +15,13 @@ let _auth: ReturnType<typeof getAuth> | null = null
 
 export function getFirebaseAuth() {
   if (typeof window === 'undefined') return null
+  if (!firebaseConfig.apiKey) return null   // Firebase secrets not configured yet
   if (_auth) return _auth
-  const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig)
-  _auth = getAuth(app)
+  try {
+    const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig)
+    _auth = getAuth(app)
+  } catch {
+    return null
+  }
   return _auth
 }

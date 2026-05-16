@@ -10,14 +10,14 @@ const dishes = [
     description: 'Slow-smoked whole lamb leg over fragrant saffron basmati rice, cooked in a traditional underground tandoor.',
     price: '₹580',
     tags: ['Signature', 'Halal'],
-    image: '/images/Lamb Mandi.jpeg',
+    image: '/images/lamb-mandi.jpeg',
   },
   {
     name: 'Chicken Mandi',
     description: 'Tender whole chicken marinated in Yemeni spices, slow-cooked over aromatic basmati rice with caramelised onions.',
     price: '₹380',
     tags: ['Bestseller', 'Halal'],
-    image: '/images/Chicken Mandi.jpeg',
+    image: '/images/chicken-mandi.jpeg',
   },
   {
     name: 'Mezze Platter',
@@ -38,7 +38,7 @@ const dishes = [
     description: 'Freshly sliced beef shawarma served with garlic sauce, pickles, fries, and Arabic bread.',
     price: '₹280',
     tags: ['Popular', 'Halal'],
-    image: '/images/Mixed Grill Platter.jpeg',
+    image: '/images/mixed-grill-platter.jpeg',
   },
   {
     name: 'Falafel & Hummus',

@@ -46,7 +46,7 @@ export const menuItems: MenuItem[] = [
     available: true,
     isVeg: false,
     servingSize: 'Serves 4–5',
-    image: '/images/Lamb Mandi.jpeg',
+    image: '/images/lamb-mandi.jpeg',
   },
   {
     id: 'mandi-02',
@@ -59,7 +59,7 @@ export const menuItems: MenuItem[] = [
     available: true,
     isVeg: false,
     servingSize: 'Serves 2',
-    image: '/images/Lamb Mandi half.jpeg',
+    image: '/images/lamb-mandi-half.jpeg',
   },
   {
     id: 'mandi-03',
@@ -85,7 +85,7 @@ export const menuItems: MenuItem[] = [
     available: true,
     isVeg: false,
     servingSize: 'Serves 1–2',
-    image: '/images/Chicken Mandi.jpeg',
+    image: '/images/chicken-mandi.jpeg',
   },
   {
     id: 'mandi-05',
@@ -113,7 +113,7 @@ export const menuItems: MenuItem[] = [
     available: true,
     isVeg: false,
     servingSize: 'Serves 2–3',
-    image: '/images/Mixed Grill Platter.jpeg',
+    image: '/images/mixed-grill-platter.jpeg',
   },
   {
     id: 'grill-02',

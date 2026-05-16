@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { logEvent } from '@/lib/logger'
 
 export default function RegisterPage() {
   const router = useRouter()
@@ -28,7 +29,13 @@ export default function RegisterPage() {
       options: { data: { full_name: name.trim() } },
     })
     setLoading(false)
-    if (error) { console.error('Signup error:', error.message, error); setError(friendlyError(error.message)); return }
+    if (error) {
+      console.error('Signup error:', error.message, error)
+      logEvent({ event: 'signup', level: 'error', payload: { email }, error: error.message })
+      setError(friendlyError(error.message))
+      return
+    }
+    logEvent({ event: 'signup', level: 'info', payload: { email } })
     setSuccess(true)
   }
 

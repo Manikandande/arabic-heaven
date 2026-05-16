@@ -133,9 +133,21 @@ export async function POST(request: Request) {
       return newOrder
     })
 
+    await prisma.eventLog.create({
+      data: {
+        event: 'order_create',
+        level: 'info',
+        userId: user?.id ?? null,
+        payload: { orderNumber: order.orderNumber, type, total, itemCount: items.length },
+      },
+    }).catch(() => {})
+
     return NextResponse.json({ success: true, orderNumber: order.orderNumber, orderId: order.id })
   } catch (err) {
     console.error('Order creation error:', err)
+    await prisma.eventLog.create({
+      data: { event: 'order_create', level: 'error', error: String(err) },
+    }).catch(() => {})
     return NextResponse.json({ error: 'Failed to create order' }, { status: 500 })
   }
 }

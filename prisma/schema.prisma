@@ -348,3 +348,23 @@ model StaffMember {
   @@unique([restaurantId, profileId])
   @@map("staff_members")
 }
+
+// ─── Event Logging ────────────────────────────────────────────────────────────
+
+model EventLog {
+  id        String   @id @default(cuid())
+  event     String   // e.g. 'signup', 'signin', 'order_create', 'favourite_toggle'
+  level     String   @default("info")  // 'info' | 'warn' | 'error'
+  userId    String?  // null for guest / pre-auth events
+  payload   Json?    // arbitrary context data
+  error     String?  // error message when level = 'error'
+  ip        String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  @@index([event])
+  @@index([userId])
+  @@index([level])
+  @@index([createdAt])
+  @@map("event_logs")
+}

@@ -171,9 +171,15 @@ export default function Navbar() {
                       <p style={{ fontFamily: 'var(--font-heading)', fontSize: '0.65rem', letterSpacing: '0.08em', color: 'var(--color-espresso)', margin: 0 }}>{user.user_metadata?.full_name || 'My Account'}</p>
                       <p style={{ fontFamily: 'var(--font-body)', fontSize: '0.72rem', color: 'var(--color-espresso-lt)', margin: '2px 0 0', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.email}</p>
                     </div>
+                    <Link href="/account" onClick={() => setUserMenuOpen(false)}
+                      style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', width: '100%', padding: '0.7rem 1rem', background: 'none', fontFamily: 'var(--font-body)', fontSize: '0.82rem', color: 'var(--color-espresso)', textDecoration: 'none', transition: 'background 0.15s' }}
+                      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-bg-hover)')}
+                      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}>
+                      My Account
+                    </Link>
                     <button
                       onClick={() => { createClient().auth.signOut(); setUserMenuOpen(false) }}
-                      style={{ width: '100%', padding: '0.7rem 1rem', textAlign: 'left', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-body)', fontSize: '0.82rem', color: 'var(--color-crimson)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+                      style={{ width: '100%', padding: '0.7rem 1rem', textAlign: 'left', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-body)', fontSize: '0.82rem', color: 'var(--color-crimson)', display: 'flex', alignItems: 'center', gap: '0.5rem', borderTop: '1px solid var(--color-border)' }}
                       onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(139,26,42,0.05)'}
                       onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                     >

@@ -138,6 +138,9 @@ model Order {
   guestEmail    String?
   estimatedReadyAt DateTime?
   completedAt   DateTime?
+  rating        Int?
+  ratingComment String?
+  ratedAt       DateTime?
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
 
@@ -180,6 +183,7 @@ model OrderItem {
   unitPrice  Decimal  @db.Decimal(10, 2)
   totalPrice Decimal  @db.Decimal(10, 2)
   notes      String?
+  itemRating Int?
   createdAt  DateTime @default(now())
 
   order      Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)

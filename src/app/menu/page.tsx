@@ -109,7 +109,9 @@ export default function MenuPage() {
     return list
   }, [activeCategory, search])
 
-  const showMostLoved = activeCategory === 'all' && !search.trim() && popularItems.length > 0
+  const showMostLoved = popularItems.length > 0
+
+  const popularItemIds = useMemo(() => new Set(popularItems.map((p) => p.itemId)), [popularItems])
 
   return (
     <>
@@ -177,6 +179,7 @@ export default function MenuPage() {
                     <MostLovedChip
                       key={pop.itemId}
                       item={pop}
+                      menuItem={menuItem}
                       isFavourited={favouriteIds.has(pop.itemId)}
                       showFavourite={!!user}
                       onToggle={() => {
@@ -268,6 +271,7 @@ export default function MenuPage() {
                     isFavourited={favouriteIds.has(item.id)}
                     showFavourite={!!user}
                     onToggleFavourite={handleToggleFavourite}
+                    isMostLoved={popularItemIds.has(item.id)}
                   />
                 ))}
               </div>
@@ -283,13 +287,17 @@ export default function MenuPage() {
 
 // ── Most Loved chip component ─────────────────────────────────────────────────
 
-function MostLovedChip({ item, isFavourited, showFavourite, onToggle }: {
+function MostLovedChip({ item, menuItem, isFavourited, showFavourite, onToggle }: {
   item: PopularItem
+  menuItem?: MenuItem
   isFavourited: boolean
   showFavourite: boolean
   onToggle: () => void
 }) {
+  const { addItem } = useCart()
   const [localFav, setLocalFav] = useState(isFavourited)
+  const [added, setAdded]       = useState(false)
+
   if (localFav !== isFavourited) setLocalFav(isFavourited)
 
   function handleToggle(e: React.MouseEvent) {
@@ -298,17 +306,27 @@ function MostLovedChip({ item, isFavourited, showFavourite, onToggle }: {
     onToggle()
   }
 
+  function handleAdd(e: React.MouseEvent) {
+    e.stopPropagation()
+    if (!menuItem?.available) return
+    addItem(menuItem)
+    setAdded(true)
+    setTimeout(() => setAdded(false), 1200)
+  }
+
+  const unavailable = menuItem && !menuItem.available
+
   return (
     <div
       style={{
         flexShrink: 0,
-        width: '140px',
+        width: '150px',
         border: '1px solid var(--color-border)',
         borderRadius: '8px',
         overflow: 'hidden',
         backgroundColor: 'var(--color-bg-primary)',
         position: 'relative',
-        cursor: 'default',
+        opacity: unavailable ? 0.6 : 1,
       }}
     >
       {/* Image */}
@@ -330,19 +348,40 @@ function MostLovedChip({ item, isFavourited, showFavourite, onToggle }: {
         {showFavourite && (
           <button
             onClick={handleToggle}
-            style={{ position: 'absolute', top: '4px', right: '4px', width: '24px', height: '24px', borderRadius: '50%', backgroundColor: 'rgba(253,246,238,0.92)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
-          >
+            style={{ position: 'absolute', top: '4px', right: '4px', width: '24px', height: '24px', borderRadius: '50%', backgroundColor: 'rgba(253,246,238,0.92)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
             <Heart size={11} fill={localFav ? 'var(--color-crimson)' : 'none'} color={localFav ? 'var(--color-crimson)' : 'var(--color-espresso-lt)'} />
           </button>
         )}
       </div>
 
-      {/* Info */}
-      <div style={{ padding: '0.5rem 0.6rem' }}>
-        <p style={{ fontFamily: 'var(--font-heading)', fontSize: '0.65rem', color: 'var(--color-espresso)', letterSpacing: '0.04em', lineHeight: 1.3, marginBottom: '2px', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+      {/* Info + Add button */}
+      <div style={{ padding: '0.5rem 0.6rem 0.6rem' }}>
+        <p style={{ fontFamily: 'var(--font-heading)', fontSize: '0.65rem', color: 'var(--color-espresso)', letterSpacing: '0.04em', lineHeight: 1.3, marginBottom: '2px', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const }}>
           {item.name}
         </p>
-        <p style={{ fontFamily: 'var(--font-heading)', fontSize: '0.68rem', color: 'var(--color-terra)' }}>₹{item.price}</p>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+          <p style={{ fontFamily: 'var(--font-heading)', fontSize: '0.7rem', color: 'var(--color-terra)' }}>₹{item.price}</p>
+        </div>
+        <button
+          onClick={handleAdd}
+          disabled={!!unavailable}
+          style={{
+            width: '100%',
+            padding: '0.3rem 0',
+            backgroundColor: added ? 'var(--color-gold)' : 'var(--color-terra)',
+            color: '#fff',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: unavailable ? 'not-allowed' : 'pointer',
+            fontFamily: 'var(--font-heading)',
+            fontSize: '0.58rem',
+            letterSpacing: '0.1em',
+            textTransform: 'uppercase',
+            transition: 'background-color 0.2s',
+          }}
+        >
+          {added ? '✓ Added' : unavailable ? 'Sold Out' : '+ Add'}
+        </button>
       </div>
     </div>
   )

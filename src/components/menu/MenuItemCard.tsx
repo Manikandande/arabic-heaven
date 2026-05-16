@@ -12,9 +12,10 @@ interface Props {
   isFavourited?: boolean
   showFavourite?: boolean
   onToggleFavourite?: (item: MenuItem, adding: boolean) => void
+  isMostLoved?: boolean
 }
 
-export default function MenuItemCard({ item, isFavourited = false, showFavourite = false, onToggleFavourite }: Props) {
+export default function MenuItemCard({ item, isFavourited = false, showFavourite = false, onToggleFavourite, isMostLoved = false }: Props) {
   const { addItem } = useCart()
   const [added, setAdded]           = useState(false)
   const [localFav, setLocalFav]     = useState(isFavourited)
@@ -133,6 +134,13 @@ export default function MenuItemCard({ item, isFavourited = false, showFavourite
 
       {/* Tags */}
       <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>
+        {/* Most Loved badge — shown when item ranks in community favourites */}
+        {isMostLoved && (
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', fontSize: '0.58rem', fontFamily: 'var(--font-heading)', letterSpacing: '0.1em', textTransform: 'uppercase', padding: '0.18rem 0.55rem', backgroundColor: 'rgba(139,26,42,0.1)', color: 'var(--color-crimson)', borderRadius: '2px' }}>
+            <Heart size={8} fill="var(--color-crimson)" color="var(--color-crimson)" />
+            Most Loved
+          </span>
+        )}
         {item.tags.map((tag) => {
           const s = tagColors[tag] ?? { bg: 'rgba(200,150,12,0.12)', color: 'var(--color-gold)' }
           return (

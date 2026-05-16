@@ -94,13 +94,27 @@ export default function MenuPage() {
   // ── Filter ────────────────────────────────────────────────────────────────
   const filtered = useMemo(() => {
     let list = menuItems
-    if (activeCategory !== 'all') list = list.filter((item) => item.category === activeCategory)
+    if (activeCategory === 'favourites') {
+      list = list.filter((item) => favouriteIds.has(item.id))
+    } else if (activeCategory === 'ordered') {
+      list = list.filter((item) => (orderedMap[item.name.toLowerCase()] ?? 0) > 0)
+    } else if (activeCategory !== 'all') {
+      list = list.filter((item) => item.category === activeCategory)
+    }
     if (search.trim()) {
       const q = search.toLowerCase()
       list = list.filter((item) => item.name.toLowerCase().includes(q) || item.description.toLowerCase().includes(q))
     }
     return list
-  }, [activeCategory, search])
+  }, [activeCategory, search, favouriteIds, orderedMap])
+
+  const personalPills = useMemo(() => {
+    if (!user) return []
+    const pills = []
+    if (favouriteIds.size > 0) pills.push({ id: 'favourites', label: `♡ My Favourites (${favouriteIds.size})` })
+    if (Object.keys(orderedMap).length > 0) pills.push({ id: 'ordered', label: `↺ Ordered (${Object.keys(orderedMap).length})` })
+    return pills
+  }, [user, favouriteIds, orderedMap])
 
   return (
     <>
@@ -151,6 +165,7 @@ export default function MenuPage() {
               categories={categories}
               active={activeCategory}
               onChange={(id) => { setActiveCategory(id); setSearch('') }}
+              extraPills={personalPills}
             />
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
               <MenuSearchBar value={search} onChange={setSearch} />
@@ -191,15 +206,26 @@ export default function MenuPage() {
 
             {filtered.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '4rem 0', color: 'var(--color-espresso-lt)' }}>
-                <p style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔍</p>
-                <p style={{ fontFamily: 'var(--font-elegant)', fontStyle: 'italic', fontSize: '1.1rem' }}>
-                  No dishes found for &ldquo;{search}&rdquo;
+                <p style={{ fontSize: '3rem', marginBottom: '1rem' }}>
+                  {activeCategory === 'favourites' ? '♡' : activeCategory === 'ordered' ? '🍽️' : '🔍'}
                 </p>
+                <p style={{ fontFamily: 'var(--font-elegant)', fontStyle: 'italic', fontSize: '1.1rem', marginBottom: '0.5rem' }}>
+                  {activeCategory === 'favourites'
+                    ? 'No favourites saved yet'
+                    : activeCategory === 'ordered'
+                    ? 'No orders placed yet'
+                    : `No dishes found for "${search}"`}
+                </p>
+                {activeCategory === 'favourites' && (
+                  <p style={{ fontFamily: 'var(--font-body)', fontSize: '0.82rem', color: 'var(--color-espresso-lt)' }}>
+                    Tap ♡ on any dish to save it here
+                  </p>
+                )}
                 <button
                   onClick={() => { setSearch(''); setActiveCategory('all') }}
-                  style={{ marginTop: '1rem', background: 'none', border: 'none', color: 'var(--color-gold)', cursor: 'pointer', fontFamily: 'var(--font-body)', fontSize: '0.85rem', textDecoration: 'underline' }}
+                  style={{ marginTop: '1.25rem', background: 'none', border: 'none', color: 'var(--color-gold)', cursor: 'pointer', fontFamily: 'var(--font-body)', fontSize: '0.85rem', textDecoration: 'underline' }}
                 >
-                  Clear filters
+                  Browse full menu
                 </button>
               </div>
             ) : (

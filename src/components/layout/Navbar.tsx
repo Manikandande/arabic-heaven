@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { Menu, X, ShoppingCart, Phone } from 'lucide-react'
 
 const navLinks = [
@@ -17,6 +18,9 @@ const navLinks = [
 export default function Navbar() {
   const [open, setOpen]         = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const pathname = usePathname()
+  const isHome = pathname === '/'
+  const solid = scrolled || !isHome
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 60)
@@ -33,9 +37,9 @@ export default function Navbar() {
         right: 0,
         zIndex: 50,
         transition: 'all 0.4s ease',
-        backgroundColor: scrolled ? 'rgba(253,246,238,0.97)' : 'transparent',
-        borderBottom: scrolled ? '1px solid var(--color-border)' : '1px solid transparent',
-        backdropFilter: scrolled ? 'blur(12px)' : 'none',
+        backgroundColor: solid ? 'rgba(253,246,238,0.97)' : 'transparent',
+        borderBottom: solid ? '1px solid var(--color-border)' : '1px solid transparent',
+        backdropFilter: solid ? 'blur(12px)' : 'none',
       }}
     >
       <nav
@@ -66,7 +70,7 @@ export default function Navbar() {
               style={{
                 fontFamily: 'var(--font-heading)',
                 fontSize: '0.65rem',
-                color: scrolled ? 'var(--color-espresso-lt)' : 'rgba(255,255,255,0.6)',
+                color: solid ? 'var(--color-espresso-lt)' : 'rgba(255,255,255,0.6)',
                 letterSpacing: '0.35em',
                 textTransform: 'uppercase',
                 marginTop: '2px',
@@ -96,12 +100,12 @@ export default function Navbar() {
                   fontSize: '0.75rem',
                   letterSpacing: '0.12em',
                   textTransform: 'uppercase',
-                  color: scrolled ? 'var(--color-espresso-md)' : 'rgba(255,255,255,0.85)',
+                  color: solid ? 'var(--color-espresso-md)' : 'rgba(255,255,255,0.85)',
                   textDecoration: 'none',
                   transition: 'color 0.2s ease',
                 }}
                 onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--color-terra-light)')}
-                onMouseLeave={(e) => (e.currentTarget.style.color = scrolled ? 'var(--color-espresso-md)' : 'rgba(255,255,255,0.85)')}
+                onMouseLeave={(e) => (e.currentTarget.style.color = solid ? 'var(--color-espresso-md)' : 'rgba(255,255,255,0.85)')}
               >
                 {link.label}
               </Link>
@@ -118,7 +122,7 @@ export default function Navbar() {
               display: 'none',
               alignItems: 'center',
               gap: '0.4rem',
-              color: scrolled ? 'var(--color-espresso-md)' : 'rgba(255,255,255,0.85)',
+              color: solid ? 'var(--color-espresso-md)' : 'rgba(255,255,255,0.85)',
               textDecoration: 'none',
               fontSize: '0.75rem',
               fontFamily: 'var(--font-heading)',
@@ -141,7 +145,7 @@ export default function Navbar() {
             style={{
               background: 'none',
               border: 'none',
-              color: scrolled ? 'var(--color-espresso)' : '#ffffff',
+              color: solid ? 'var(--color-espresso)' : '#ffffff',
               cursor: 'pointer',
               padding: '0.25rem',
             }}

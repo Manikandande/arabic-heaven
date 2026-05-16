@@ -24,7 +24,7 @@ export default function Navbar() {
   const pathname = usePathname()
   const isHome = pathname === '/'
   const solid = scrolled || !isHome
-  const { user, loading } = useAuth()
+  const { user, loading, avatarUrl } = useAuth()
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 60)
@@ -152,8 +152,8 @@ export default function Navbar() {
                   onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--color-border)'}
                 >
                   <div style={{ width: '28px', height: '28px', borderRadius: '50%', backgroundColor: 'var(--color-terra)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    {user.user_metadata?.avatar_url
-                      ? <img src={user.user_metadata.avatar_url} alt="" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} referrerPolicy="no-referrer" />
+                    {avatarUrl
+                      ? <img src={avatarUrl} alt="" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} referrerPolicy="no-referrer" />
                       : <span style={{ fontFamily: 'var(--font-heading)', fontSize: '0.65rem', color: '#fff', fontWeight: 600 }}>{(user.user_metadata?.full_name || user.email || 'U')[0].toUpperCase()}</span>
                     }
                   </div>

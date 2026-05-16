@@ -59,7 +59,7 @@ interface FavouriteItem {
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function AccountPage() {
-  const { user, loading } = useAuth()
+  const { user, loading, avatarUrl: ctxAvatarUrl, refreshAvatar } = useAuth()
   const router = useRouter()
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -73,7 +73,6 @@ export default function AccountPage() {
   const [phone, setPhone]               = useState('')
   const [gender, setGender]             = useState('')
   const [dob, setDob]                   = useState('')
-  const [liveAvatarUrl, setLiveAvatarUrl] = useState<string | null>(null)
   const [uploadingAvatar, setUploadingAvatar] = useState(false)
 
   // Addresses
@@ -101,7 +100,6 @@ export default function AccountPage() {
       setPhone(user.user_metadata?.phone ?? '')
       setGender(user.user_metadata?.gender ?? '')
       setDob(user.user_metadata?.dob ?? '')
-      setLiveAvatarUrl(user.user_metadata?.avatar_url ?? null)
       setFavourites(user.user_metadata?.favourites ?? [])
     }
   }, [user])
@@ -130,20 +128,22 @@ export default function AccountPage() {
     const supabase = createClient()
     const path = `${user.id}/avatar.${ext}`
 
+    // Upload to PRIVATE bucket — no public access
     const { error: upErr } = await supabase.storage
       .from('avatars')
       .upload(path, file, { upsert: true, contentType: file.type })
 
     if (upErr) {
-      setSaveMsg('Upload failed. Create an "avatars" storage bucket in Supabase first.')
+      setSaveMsg('Upload failed. Create a private "avatars" bucket in Supabase Storage first.')
       setUploadingAvatar(false)
       return
     }
 
-    const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(path)
-    const url = `${publicUrl}?t=${Date.now()}`
-    await supabase.auth.updateUser({ data: { avatar_url: url } })
-    setLiveAvatarUrl(url)
+    // Store only the file path — signed URLs are generated fresh each session
+    await supabase.auth.updateUser({ data: { avatar_path: path } })
+
+    // Refresh signed URL in AuthContext (updates navbar + this page instantly)
+    await refreshAvatar()
     setUploadingAvatar(false)
     setSaveMsg('Photo updated!')
     setTimeout(() => setSaveMsg(''), 3000)
@@ -269,7 +269,7 @@ export default function AccountPage() {
 
   const displayName = fullName || user.user_metadata?.full_name || ''
   const initials    = (displayName || user.email || 'U').slice(0, 2).toUpperCase()
-  const avatarSrc   = liveAvatarUrl || user.user_metadata?.avatar_url
+  const avatarSrc   = ctxAvatarUrl
 
   const tabs: { id: Tab; label: string; Icon: React.ElementType }[] = [
     { id: 'profile',    label: 'Profile',    Icon: User },

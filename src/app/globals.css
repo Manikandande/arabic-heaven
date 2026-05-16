@@ -237,6 +237,16 @@ img {
   .section-padding { padding: 7rem 4rem; }
 }
 
+/* ─── Navbar responsive visibility ─────────────────────────────────────────── */
+.desktop-nav     { display: none; }
+.phone-link      { display: none; }
+.mobile-menu-btn { display: flex; }
+@media (min-width: 1024px) {
+  .desktop-nav     { display: flex !important; }
+  .phone-link      { display: flex !important; }
+  .mobile-menu-btn { display: none !important; }
+}
+
 /* ─── Scrollbar ─────────────────────────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: var(--color-bg-tertiary); }

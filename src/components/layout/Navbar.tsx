@@ -84,7 +84,6 @@ export default function Navbar() {
         {/* Desktop Nav */}
         <ul
           style={{
-            display: 'none',
             listStyle: 'none',
             gap: '2rem',
             alignItems: 'center',
@@ -119,7 +118,6 @@ export default function Navbar() {
           <a
             href="tel:+91XXXXXXXXXX"
             style={{
-              display: 'none',
               alignItems: 'center',
               gap: '0.4rem',
               color: solid ? 'var(--color-espresso-md)' : 'rgba(255,255,255,0.85)',
@@ -201,13 +199,6 @@ export default function Navbar() {
         </div>
       )}
 
-      <style>{`
-        @media (min-width: 1024px) {
-          .desktop-nav { display: flex !important; }
-          .phone-link  { display: flex !important; }
-          .mobile-menu-btn { display: none !important; }
-        }
-      `}</style>
     </header>
   )
 }

@@ -125,7 +125,7 @@ export const menuItems: MenuItem[] = [
     emoji: '🍡',
     available: true,
     isVeg: false,
-    image: 'https://images.unsplash.com/photo-1529563021893-cc83c992d75d?auto=format&fit=crop&w=700&q=80',
+    image: '/images/shish-tawook.jpeg',
   },
   {
     id: 'grill-03',
@@ -138,7 +138,7 @@ export const menuItems: MenuItem[] = [
     available: true,
     isVeg: false,
     spiceLevel: 2,
-    image: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=700&q=80',
+    image: '/images/lamb-kafta.jpeg',
   },
   {
     id: 'grill-04',
@@ -150,7 +150,7 @@ export const menuItems: MenuItem[] = [
     emoji: '🥩',
     available: true,
     isVeg: false,
-    image: 'https://images.unsplash.com/photo-1544025162-d76538a4b1f0?auto=format&fit=crop&w=700&q=80',
+    image: '/images/lamb-chops.jpeg',
   },
   {
     id: 'grill-05',
@@ -162,7 +162,7 @@ export const menuItems: MenuItem[] = [
     emoji: '🌯',
     available: true,
     isVeg: false,
-    image: 'https://images.unsplash.com/photo-1561651188-d207bbec4ec3?auto=format&fit=crop&w=700&q=80',
+    image: '/images/beef-shawarma.jpeg',
   },
   {
     id: 'grill-06',
@@ -215,7 +215,7 @@ export const menuItems: MenuItem[] = [
     available: true,
     isVeg: false,
     spiceLevel: 2,
-    image: 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?auto=format&fit=crop&w=700&q=80',
+    image: '/images/machboos.jpeg',
   },
   {
     id: 'rice-04',
@@ -227,7 +227,7 @@ export const menuItems: MenuItem[] = [
     emoji: '🍚',
     available: true,
     isVeg: false,
-    image: 'https://images.unsplash.com/photo-1519984388953-d2406bc725e1?auto=format&fit=crop&w=700&q=80',
+    image: '/images/sayadieh.jpeg',
   },
 
   // ─── MEZZE & STARTERS ──────────────────────────────────────────────────────
@@ -266,7 +266,7 @@ export const menuItems: MenuItem[] = [
     emoji: '🍆',
     available: true,
     isVeg: true,
-    image: 'https://images.unsplash.com/photo-1590301157890-4810ed352733?auto=format&fit=crop&w=700&q=80',
+    image: '/images/mutabbal.jpeg',
   },
   {
     id: 'mezze-04',
@@ -278,7 +278,7 @@ export const menuItems: MenuItem[] = [
     emoji: '🥗',
     available: true,
     isVeg: true,
-    image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=700&q=80',
+    image: '/images/fattoush.jpeg',
   },
   {
     id: 'mezze-05',
@@ -290,7 +290,7 @@ export const menuItems: MenuItem[] = [
     emoji: '🌿',
     available: true,
     isVeg: true,
-    image: 'https://images.unsplash.com/photo-1567620832903-9fc6debc209f?auto=format&fit=crop&w=700&q=80',
+    image: '/images/tabbouleh.jpeg',
   },
   {
     id: 'mezze-06',
@@ -314,7 +314,7 @@ export const menuItems: MenuItem[] = [
     emoji: '🌿',
     available: true,
     isVeg: true,
-    image: 'https://images.unsplash.com/photo-1530057869983-2da89a76c19f?auto=format&fit=crop&w=700&q=80',
+    image: '/images/grape-leaves.jpeg',
   },
   {
     id: 'mezze-08',
@@ -327,7 +327,7 @@ export const menuItems: MenuItem[] = [
     available: true,
     isVeg: false,
     spiceLevel: 1,
-    image: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?auto=format&fit=crop&w=700&q=80',
+    image: '/images/harissa-soup.jpeg',
   },
 
   // ─── BREADS & SIDES ────────────────────────────────────────────────────────
@@ -342,7 +342,7 @@ export const menuItems: MenuItem[] = [
     available: true,
     isVeg: true,
     servingSize: '2 pieces',
-    image: 'https://images.unsplash.com/photo-1568740405407-dbbe4a68f153?auto=format&fit=crop&w=700&q=80',
+    image: '/images/arabic-bread.jpeg',
   },
   {
     id: 'bread-02',
@@ -354,7 +354,7 @@ export const menuItems: MenuItem[] = [
     emoji: '🧀',
     available: true,
     isVeg: true,
-    image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=700&q=80',
+    image: '/images/cheese-manakish.jpeg',
   },
   {
     id: 'bread-03',
@@ -366,7 +366,7 @@ export const menuItems: MenuItem[] = [
     emoji: '🌿',
     available: true,
     isVeg: true,
-    image: 'https://images.unsplash.com/photo-1591985666643-9b54b513e4ea?auto=format&fit=crop&w=700&q=80',
+    image: '/images/zaatar-manakish.jpeg',
   },
   {
     id: 'bread-04',
@@ -379,7 +379,7 @@ export const menuItems: MenuItem[] = [
     available: true,
     isVeg: true,
     servingSize: 'Single portion',
-    image: 'https://images.unsplash.com/photo-1516684732162-798a0062be99?auto=format&fit=crop&w=700&q=80',
+    image: '/images/saffron-rice.jpeg',
   },
   {
     id: 'bread-05',
@@ -391,7 +391,7 @@ export const menuItems: MenuItem[] = [
     emoji: '🍟',
     available: true,
     isVeg: true,
-    image: 'https://images.unsplash.com/photo-1573080496219-bb964701c815?auto=format&fit=crop&w=700&q=80',
+    image: '/images/crispy-fries.jpeg',
   },
 
   // ─── DESSERTS ──────────────────────────────────────────────────────────────
@@ -405,7 +405,7 @@ export const menuItems: MenuItem[] = [
     emoji: '🍮',
     available: true,
     isVeg: true,
-    image: 'https://images.unsplash.com/photo-1551024506-0bccd828d307?auto=format&fit=crop&w=700&q=80',
+    image: '/images/umm-ali.jpeg',
   },
   {
     id: 'dessert-02',
@@ -417,7 +417,7 @@ export const menuItems: MenuItem[] = [
     emoji: '🥮',
     available: true,
     isVeg: true,
-    image: 'https://images.unsplash.com/photo-1541014741259-de529411b96a?auto=format&fit=crop&w=700&q=80',
+    image: '/images/kunafa.jpeg',
   },
   {
     id: 'dessert-03',
@@ -430,7 +430,7 @@ export const menuItems: MenuItem[] = [
     available: true,
     isVeg: true,
     servingSize: '6 pieces',
-    image: 'https://images.unsplash.com/photo-1519676867240-f03562e64548?auto=format&fit=crop&w=700&q=80',
+    image: '/images/baklava.jpeg',
   },
   {
     id: 'dessert-04',
@@ -442,7 +442,7 @@ export const menuItems: MenuItem[] = [
     emoji: '🍰',
     available: true,
     isVeg: true,
-    image: 'https://images.unsplash.com/photo-1563805042-7684c019e1cb?auto=format&fit=crop&w=700&q=80',
+    image: '/images/basbousa.jpeg',
   },
   {
     id: 'dessert-05',
@@ -454,7 +454,7 @@ export const menuItems: MenuItem[] = [
     emoji: '🌴',
     available: true,
     isVeg: true,
-    image: 'https://images.unsplash.com/photo-1559656914-a30970c1affd?auto=format&fit=crop&w=700&q=80',
+    image: '/images/dates-cream.jpeg',
   },
 
   // ─── BEVERAGES ─────────────────────────────────────────────────────────────
@@ -469,7 +469,7 @@ export const menuItems: MenuItem[] = [
     available: true,
     isVeg: true,
     servingSize: 'Pot — 2–3 cups',
-    image: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=700&q=80',
+    image: '/images/arabic-coffee.jpeg',
   },
   {
     id: 'bev-02',
@@ -481,7 +481,7 @@ export const menuItems: MenuItem[] = [
     emoji: '🍋',
     available: true,
     isVeg: true,
-    image: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?auto=format&fit=crop&w=700&q=80',
+    image: '/images/mint-lemonade.jpeg',
   },
   {
     id: 'bev-03',
@@ -493,7 +493,7 @@ export const menuItems: MenuItem[] = [
     emoji: '🌹',
     available: true,
     isVeg: true,
-    image: 'https://images.unsplash.com/photo-1497534446932-c925b458314e?auto=format&fit=crop&w=700&q=80',
+    image: '/images/rose-lemonade.jpeg',
   },
   {
     id: 'bev-04',
@@ -505,7 +505,7 @@ export const menuItems: MenuItem[] = [
     emoji: '🥭',
     available: true,
     isVeg: true,
-    image: 'https://images.unsplash.com/photo-1553361371-9b22f78e8b1d?auto=format&fit=crop&w=700&q=80',
+    image: '/images/mango-lassi.jpeg',
   },
   {
     id: 'bev-05',
@@ -517,7 +517,7 @@ export const menuItems: MenuItem[] = [
     emoji: '🍇',
     available: true,
     isVeg: true,
-    image: 'https://images.unsplash.com/photo-1534353341234-9b38a39e67c6?auto=format&fit=crop&w=700&q=80',
+    image: '/images/jallab-juice.jpeg',
   },
   {
     id: 'bev-06',
@@ -529,7 +529,7 @@ export const menuItems: MenuItem[] = [
     emoji: '🍵',
     available: true,
     isVeg: true,
-    image: 'https://images.unsplash.com/photo-1564890369478-c89ca3d9cfc9?auto=format&fit=crop&w=700&q=80',
+    image: '/images/karak-chai.jpeg',
   },
   {
     id: 'bev-07',
@@ -541,7 +541,7 @@ export const menuItems: MenuItem[] = [
     emoji: '🍉',
     available: true,
     isVeg: true,
-    image: 'https://images.unsplash.com/photo-1568909344668-6f14a07b56a0?auto=format&fit=crop&w=700&q=80',
+    image: '/images/watermelon-juice.jpeg',
   },
 ]
 

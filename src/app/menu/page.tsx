@@ -48,7 +48,8 @@ export default function MenuPage() {
     if (user) {
       const favs: { id: string }[] = user.user_metadata?.favourites ?? []
       setFavouriteIds(new Set(favs.map((f) => f.id)))
-      if (favs.length === 0) setPersonalTab('reorder')
+      if (favs.length > 0) setPersonalTab('favourites')
+      else setPersonalTab('popular')
     } else {
       setFavouriteIds(new Set())
     }
@@ -84,7 +85,7 @@ export default function MenuPage() {
   }, [user])
 
   // ── Personal picks ────────────────────────────────────────────────────────
-  const [personalTab, setPersonalTab]   = useState<'favourites' | 'reorder'>('favourites')
+  const [personalTab, setPersonalTab]   = useState<'favourites' | 'reorder' | 'popular'>('popular')
   const [reorderItems, setReorderItems] = useState<ReorderItem[]>([])
 
   // ── Most Loved ────────────────────────────────────────────────────────────
@@ -131,7 +132,9 @@ export default function MenuPage() {
             agg[key].count += item.quantity
           }
         }
-        setReorderItems(Object.values(agg).sort((a, b) => b.count - a.count).slice(0, 6))
+        const ranked = Object.values(agg).sort((a, b) => b.count - a.count).slice(0, 6)
+        setReorderItems(ranked)
+        if (ranked.length > 0) setPersonalTab((prev) => prev === 'popular' ? 'reorder' : prev)
       })
       .catch(() => {})
   }, [user])
@@ -156,8 +159,6 @@ export default function MenuPage() {
     }
     return list
   }, [activeCategory, search])
-
-  const showMostLoved = popularItems.length > 0
 
   const popularItemIds = useMemo(() => new Set(popularItems.map((p) => p.itemId)), [popularItems])
 
@@ -194,101 +195,72 @@ export default function MenuPage() {
           </div>
         </section>
 
-        {/* ── Your Picks (signed-in users only) ── */}
-        {user && (favouriteItems.length > 0 || reorderItems.length > 0) && (
-          <section style={{ backgroundColor: 'var(--color-bg-primary)', borderBottom: '1px solid var(--color-border)', padding: '1.25rem 0' }}>
+        {/* ── Quick-picks strip: tabbed for signed-in, Most Loved for guests ── */}
+        {(popularItems.length > 0 || user) && (
+          <section style={{ backgroundColor: 'var(--color-bg-secondary)', borderBottom: '1px solid var(--color-border)', padding: '1.5rem 0' }}>
             <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 1.5rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
-                <h2 style={{ fontFamily: 'var(--font-heading)', fontSize: '0.65rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--color-espresso)', whiteSpace: 'nowrap' }}>
-                  ✦ Your Picks
-                </h2>
-                <div style={{ display: 'flex', border: '1px solid var(--color-border)', borderRadius: '999px', overflow: 'hidden' }}>
-                  <button
-                    onClick={() => setPersonalTab('favourites')}
-                    style={{ padding: '0.28rem 0.9rem', border: 'none', backgroundColor: personalTab === 'favourites' ? 'var(--color-terra)' : 'transparent', color: personalTab === 'favourites' ? '#fff' : 'var(--color-espresso-lt)', fontFamily: 'var(--font-body)', fontSize: '0.73rem', cursor: 'pointer', transition: 'all 0.2s' }}>
-                    ♡ Favourites{favouriteItems.length > 0 ? ` (${favouriteItems.length})` : ''}
-                  </button>
-                  <button
-                    onClick={() => setPersonalTab('reorder')}
-                    style={{ padding: '0.28rem 0.9rem', border: 'none', borderLeft: '1px solid var(--color-border)', backgroundColor: personalTab === 'reorder' ? 'var(--color-terra)' : 'transparent', color: personalTab === 'reorder' ? '#fff' : 'var(--color-espresso-lt)', fontFamily: 'var(--font-body)', fontSize: '0.73rem', cursor: 'pointer', transition: 'all 0.2s' }}>
-                    ↺ Order Again{reorderItems.length > 0 ? ` (${reorderItems.length})` : ''}
-                  </button>
-                </div>
+
+              {/* Header / tab row */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.1rem', flexWrap: 'wrap' }}>
+                {!user ? (
+                  <>
+                    <Heart size={15} fill="var(--color-crimson)" color="var(--color-crimson)" />
+                    <h2 style={{ fontFamily: 'var(--font-heading)', fontSize: '0.75rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--color-espresso)' }}>
+                      Most Loved by Our Guests
+                    </h2>
+                    {popularItems[0]?.count > 0 && (
+                      <span style={{ fontFamily: 'var(--font-elegant)', fontStyle: 'italic', fontSize: '0.82rem', color: 'var(--color-espresso-lt)' }}>
+                        — based on {popularItems.reduce((s, i) => s + i.count, 0)} favourites
+                      </span>
+                    )}
+                  </>
+                ) : (
+                  <div style={{ display: 'flex', border: '1px solid var(--color-border)', borderRadius: '999px', overflow: 'hidden' }}>
+                    {favouriteItems.length > 0 && (
+                      <button onClick={() => setPersonalTab('favourites')}
+                        style={{ padding: '0.3rem 1rem', border: 'none', backgroundColor: personalTab === 'favourites' ? 'var(--color-terra)' : 'transparent', color: personalTab === 'favourites' ? '#fff' : 'var(--color-espresso-lt)', fontFamily: 'var(--font-body)', fontSize: '0.73rem', cursor: 'pointer', transition: 'all 0.2s', whiteSpace: 'nowrap' }}>
+                        ♡ My Picks ({favouriteItems.length})
+                      </button>
+                    )}
+                    {reorderItems.length > 0 && (
+                      <button onClick={() => setPersonalTab('reorder')}
+                        style={{ padding: '0.3rem 1rem', border: 'none', borderLeft: favouriteItems.length > 0 ? '1px solid var(--color-border)' : 'none', backgroundColor: personalTab === 'reorder' ? 'var(--color-terra)' : 'transparent', color: personalTab === 'reorder' ? '#fff' : 'var(--color-espresso-lt)', fontFamily: 'var(--font-body)', fontSize: '0.73rem', cursor: 'pointer', transition: 'all 0.2s', whiteSpace: 'nowrap' }}>
+                        ↺ Order Again ({reorderItems.length})
+                      </button>
+                    )}
+                    <button onClick={() => setPersonalTab('popular')}
+                      style={{ padding: '0.3rem 1rem', border: 'none', borderLeft: (favouriteItems.length > 0 || reorderItems.length > 0) ? '1px solid var(--color-border)' : 'none', backgroundColor: personalTab === 'popular' ? 'var(--color-terra)' : 'transparent', color: personalTab === 'popular' ? '#fff' : 'var(--color-espresso-lt)', fontFamily: 'var(--font-body)', fontSize: '0.73rem', cursor: 'pointer', transition: 'all 0.2s', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                      <Heart size={11} fill={personalTab === 'popular' ? '#fff' : 'var(--color-crimson)'} color={personalTab === 'popular' ? '#fff' : 'var(--color-crimson)'} /> Most Loved
+                    </button>
+                  </div>
+                )}
               </div>
 
+              {/* Chip strip */}
               <div style={{ display: 'flex', gap: '0.85rem', overflowX: 'auto', paddingBottom: '0.5rem', scrollbarWidth: 'none' }}>
-                {personalTab === 'favourites' && favouriteItems.length === 0 && (
-                  <p style={{ fontFamily: 'var(--font-elegant)', fontStyle: 'italic', fontSize: '0.85rem', color: 'var(--color-espresso-lt)', padding: '0.5rem 0' }}>
-                    Tap ♡ on any dish to save it here
-                  </p>
-                )}
-                {personalTab === 'favourites' && favouriteItems.map((pop) => {
+                {/* My Picks tab */}
+                {user && personalTab === 'favourites' && favouriteItems.map((pop) => {
                   const menuItem = menuItems.find((m) => m.id === pop.itemId)
                   return (
-                    <MostLovedChip
-                      key={pop.itemId}
-                      item={pop}
-                      menuItem={menuItem}
-                      isFavourited={favouriteIds.has(pop.itemId)}
-                      showFavourite={true}
+                    <MostLovedChip key={pop.itemId} item={pop} menuItem={menuItem}
+                      isFavourited={favouriteIds.has(pop.itemId)} showFavourite
                       onToggle={() => { if (menuItem) handleToggleFavourite(menuItem, !favouriteIds.has(pop.itemId)) }}
                     />
                   )
                 })}
-                {personalTab === 'reorder' && reorderItems.length === 0 && (
-                  <p style={{ fontFamily: 'var(--font-elegant)', fontStyle: 'italic', fontSize: '0.85rem', color: 'var(--color-espresso-lt)', padding: '0.5rem 0' }}>
-                    Place your first order to see it here
-                  </p>
-                )}
-                {personalTab === 'reorder' && reorderItems.map((ri) => (
+
+                {/* Order Again tab */}
+                {user && personalTab === 'reorder' && reorderItems.map((ri) => (
                   <ReorderChip key={ri.name} item={ri} menuItem={menuItems.find((m) => m.name.toLowerCase() === ri.name.toLowerCase())} />
                 ))}
-              </div>
-            </div>
-          </section>
-        )}
 
-        {/* ── Most Loved strip ── */}
-        {showMostLoved && (
-          <section style={{ backgroundColor: 'var(--color-bg-secondary)', borderBottom: '1px solid var(--color-border)', padding: '1.5rem 0' }}>
-            <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 1.5rem' }}>
-              {/* Header */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1.1rem' }}>
-                <Heart size={15} fill="var(--color-crimson)" color="var(--color-crimson)" />
-                <h2 style={{ fontFamily: 'var(--font-heading)', fontSize: '0.75rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--color-espresso)' }}>
-                  Most Loved by Our Guests
-                </h2>
-                {popularItems[0]?.count > 0 && (
-                  <span style={{ fontFamily: 'var(--font-elegant)', fontStyle: 'italic', fontSize: '0.82rem', color: 'var(--color-espresso-lt)', marginLeft: '0.25rem' }}>
-                    — based on {popularItems.reduce((s, i) => s + i.count, 0)} favourites
-                  </span>
-                )}
-              </div>
-
-              {/* Horizontal scroll strip */}
-              <div
-                style={{
-                  display: 'flex',
-                  gap: '0.85rem',
-                  overflowX: 'auto',
-                  paddingBottom: '0.5rem',
-                  scrollbarWidth: 'none',
-                }}
-              >
-                {popularItems.map((pop) => {
+                {/* Most Loved — guests always, signed-in on 'popular' tab */}
+                {(!user || personalTab === 'popular') && popularItems.map((pop) => {
                   const menuItem = menuItems.find((m) => m.id === pop.itemId)
                   return (
-                    <MostLovedChip
-                      key={pop.itemId}
-                      item={pop}
-                      menuItem={menuItem}
-                      isFavourited={favouriteIds.has(pop.itemId)}
-                      showFavourite={!!user}
-                      onToggle={() => {
-                        if (!menuItem) return
-                        const adding = !favouriteIds.has(pop.itemId)
-                        handleToggleFavourite(menuItem, adding)
-                      }}
+                    <MostLovedChip key={pop.itemId} item={pop} menuItem={menuItem}
+                      isFavourited={favouriteIds.has(pop.itemId)} showFavourite={!!user}
+                      onToggle={() => { if (menuItem) handleToggleFavourite(menuItem, !favouriteIds.has(pop.itemId)) }}
                     />
                   )
                 })}

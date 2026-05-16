@@ -20,10 +20,12 @@ model Restaurant {
   email       String?
   mapLat      Float?
   mapLng      Float?
-  timezone    String   @default("Asia/Kolkata")
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  timezone      String   @default("Asia/Kolkata")
+  isActive      Boolean  @default(true)
+  tableCapacity Int      @default(5)
+  upiId         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   menuCategories MenuCategory[]
   menuItems      MenuItem[]
@@ -230,25 +232,28 @@ model DiningTable {
 }
 
 model Reservation {
-  id           String            @id @default(cuid())
-  restaurantId String
-  profileId    String?
-  tableId      String?
-  guestName    String
-  guestPhone   String
-  guestEmail   String?
-  partySize    Int
-  date         DateTime          @db.Date
-  timeSlot     String
-  status       ReservationStatus @default(PENDING)
-  notes        String?
-  confirmedAt  DateTime?
-  createdAt    DateTime          @default(now())
-  updatedAt    DateTime          @updatedAt
+  id             String            @id @default(cuid())
+  restaurantId   String
+  profileId      String?
+  tableId        String?
+  guestName      String
+  guestPhone     String
+  guestEmail     String?
+  partySize      Int
+  date           DateTime          @db.Date
+  timeSlot       String
+  status         ReservationStatus @default(PENDING)
+  notes          String?
+  confirmedAt    DateTime?
+  depositAmount  Decimal?          @db.Decimal(10, 2)
+  depositPaid    Boolean           @default(false)
+  utrNumber      String?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
 
-  restaurant   Restaurant        @relation(fields: [restaurantId], references: [id])
-  profile      Profile?          @relation(fields: [profileId], references: [id])
-  table        DiningTable?      @relation(fields: [tableId], references: [id])
+  restaurant     Restaurant        @relation(fields: [restaurantId], references: [id])
+  profile        Profile?          @relation(fields: [profileId], references: [id])
+  table          DiningTable?      @relation(fields: [tableId], references: [id])
 
   @@map("reservations")
 }

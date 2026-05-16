@@ -292,12 +292,12 @@ export default function CartDrawer() {
             </p>
 
             <Link
-              href="/order"
+              href="/checkout"
               className="btn-gold"
               onClick={closeCart}
               style={{ textAlign: 'center', display: 'block', padding: '0.8rem' }}
             >
-              Proceed to Order &nbsp;→
+              Proceed to Checkout &nbsp;→
             </Link>
           </div>
         )}

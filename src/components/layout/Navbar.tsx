@@ -10,7 +10,7 @@ import { useAuth } from '@/context/AuthContext'
 const navLinks = [
   { label: 'Home',        href: '/' },
   { label: 'Menu',        href: '/menu' },
-  { label: 'Order Online',href: '/order' },
+  { label: 'Order Online',href: '/menu' },
   { label: 'Reservations',href: '/reservations' },
   { label: 'Catering',    href: '/catering' },
   { label: 'About',       href: '/about' },
@@ -138,7 +138,7 @@ export default function Navbar() {
           </a>
 
           {/* Order Now CTA */}
-          <Link href="/order" className="btn-gold" style={{ fontSize: '0.7rem', padding: '0.55rem 1.25rem' }}>
+          <Link href="/menu" className="btn-gold" style={{ fontSize: '0.7rem', padding: '0.55rem 1.25rem' }}>
             Order Now
           </Link>
 
@@ -253,7 +253,7 @@ export default function Navbar() {
             ))}
           </ul>
           <div style={{ marginTop: '1.5rem', display: 'flex', gap: '1rem' }}>
-            <Link href="/order" className="btn-gold" style={{ flex: 1, justifyContent: 'center' }}>
+            <Link href="/menu" className="btn-gold" style={{ flex: 1, justifyContent: 'center' }}>
               Order Online
             </Link>
             <Link href="/reservations" className="btn-outline" style={{ flex: 1, justifyContent: 'center' }}>

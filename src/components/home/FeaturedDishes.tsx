@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
+import { imgSrc } from '@/lib/imagePath'
 
 const dishes = [
   {
@@ -286,12 +286,11 @@ function DishCard({ dish }: { dish: typeof dishes[0] }) {
       style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden', height: '100%' }}
     >
       {/* Image */}
-      <div style={{ height: '220px', overflow: 'hidden', backgroundColor: 'var(--color-bg-tertiary)', position: 'relative' }}>
-        <Image
-          src={dish.image}
+      <div style={{ height: '220px', overflow: 'hidden', backgroundColor: 'var(--color-bg-tertiary)' }}>
+        <img
+          src={imgSrc(dish.image)}
           alt={dish.name}
-          fill
-          style={{ objectFit: 'cover', transition: 'transform 0.5s ease' }}
+          style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'transform 0.5s ease' }}
           onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.07)')}
           onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
         />

@@ -1,10 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import Image from 'next/image'
 import type { MenuItem } from '@/lib/menuData'
 import { tagColors } from '@/lib/menuData'
 import { useCart } from '@/context/CartContext'
+import { imgSrc } from '@/lib/imagePath'
 
 export default function MenuItemCard({ item }: { item: MenuItem }) {
   const { addItem } = useCart()
@@ -67,12 +67,10 @@ export default function MenuItemCard({ item }: { item: MenuItem }) {
         }}
       >
         {item.image ? (
-          <Image
-            src={item.image}
+          <img
+            src={imgSrc(item.image)}
             alt={item.name}
-            fill
-            style={{ objectFit: 'cover', objectPosition: 'center' }}
-            unoptimized={item.image.startsWith('http')}
+            style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', display: 'block' }}
           />
         ) : (
           item.emoji

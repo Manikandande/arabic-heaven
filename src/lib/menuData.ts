@@ -1,7 +1,8 @@
 export type DietaryTag = 'Halal' | 'Vegan' | 'Vegetarian' | 'Spicy' | 'Gluten-Free' | 'Signature' | 'Bestseller' | 'New' | 'Sharing'
 
 export interface MenuItem {
-  id: string
+  id: string          // primary key — e.g. mandi-01
+  code: string        // 4-digit billing code — e.g. 1001
   name: string
   description: string
   price: number
@@ -37,6 +38,7 @@ export const menuItems: MenuItem[] = [
   // ─── MANDI ────────────────────────────────────────────────────────────────
   {
     id: 'mandi-01',
+    code: '1001',
     name: 'Lamb Mandi (Full)',
     description: 'A whole slow-smoked lamb leg placed over fragrant saffron basmati rice, cooked in our traditional underground tandoor for 6 hours. Served with Sahawiq (green chili sauce) and Zabadi (yoghurt).',
     price: 1200,
@@ -50,6 +52,7 @@ export const menuItems: MenuItem[] = [
   },
   {
     id: 'mandi-02',
+    code: '1002',
     name: 'Lamb Mandi (Half)',
     description: 'Half portion of our signature slow-smoked lamb Mandi. Tender, smoky, and perfectly spiced. Served with saffron rice, Sahawiq, and Zabadi.',
     price: 650,
@@ -63,6 +66,7 @@ export const menuItems: MenuItem[] = [
   },
   {
     id: 'mandi-03',
+    code: '1003',
     name: 'Chicken Mandi (Full)',
     description: 'Whole chicken marinated in traditional Yemeni Hawaij spice blend, slow-smoked over aromatic wood and basmati rice. Incredibly tender with golden, crispy skin.',
     price: 780,
@@ -76,6 +80,7 @@ export const menuItems: MenuItem[] = [
   },
   {
     id: 'mandi-04',
+    code: '1004',
     name: 'Chicken Mandi (Half)',
     description: 'Half portion of our beloved chicken Mandi — smoky, juicy, and served over saffron basmati rice. Comes with Sahawiq and cooling yoghurt.',
     price: 420,
@@ -89,6 +94,7 @@ export const menuItems: MenuItem[] = [
   },
   {
     id: 'mandi-05',
+    code: '1005',
     name: 'Prawn Mandi',
     description: 'Jumbo prawns marinated in Arabian spices and slow-cooked over fragrant saffron rice. A coastal twist on our Yemeni classic. Seasonal availability.',
     price: 880,
@@ -104,6 +110,7 @@ export const menuItems: MenuItem[] = [
   // ─── GRILLS ────────────────────────────────────────────────────────────────
   {
     id: 'grill-01',
+    code: '2001',
     name: 'Mixed Grill Platter',
     description: 'A grand platter of Shish Tawook (chicken skewers), Kafta (spiced minced lamb), Lamb Chops, and Seekh Kebab. Served with garlic sauce, pickles, and Arabic bread.',
     price: 680,
@@ -117,6 +124,7 @@ export const menuItems: MenuItem[] = [
   },
   {
     id: 'grill-02',
+    code: '2002',
     name: 'Shish Tawook',
     description: 'Tender chunks of chicken marinated in Lebanese-style yoghurt, garlic, and lemon, grilled on charcoal skewers. Served with toum (garlic sauce) and pita.',
     price: 320,
@@ -129,6 +137,7 @@ export const menuItems: MenuItem[] = [
   },
   {
     id: 'grill-03',
+    code: '2003',
     name: 'Lamb Kafta',
     description: 'Hand-rolled minced lamb mixed with parsley, onion, and Arabian spices, charcoal-grilled and served with tahini and a side salad.',
     price: 360,
@@ -142,6 +151,7 @@ export const menuItems: MenuItem[] = [
   },
   {
     id: 'grill-04',
+    code: '2004',
     name: 'Grilled Lamb Chops',
     description: 'Four succulent lamb chops marinated in a blend of Arabic seven-spice, rosemary, and garlic. Grilled to perfection. Served with mint yoghurt and fattoush.',
     price: 520,
@@ -154,6 +164,7 @@ export const menuItems: MenuItem[] = [
   },
   {
     id: 'grill-05',
+    code: '2005',
     name: 'Beef Shawarma Platter',
     description: 'Freshly sliced marinated beef shawarma served with garlic sauce, pickles, sliced tomato, and crispy fries. Accompanied by warm Arabic bread.',
     price: 280,
@@ -166,6 +177,7 @@ export const menuItems: MenuItem[] = [
   },
   {
     id: 'grill-06',
+    code: '2006',
     name: 'Chicken Shawarma Platter',
     description: 'Tender spiced chicken shawarma with toum, pickled vegetables, and fries. A street-food classic elevated to restaurant quality.',
     price: 240,
@@ -180,6 +192,7 @@ export const menuItems: MenuItem[] = [
   // ─── RICE DISHES ───────────────────────────────────────────────────────────
   {
     id: 'rice-01',
+    code: '3001',
     name: 'Mutton Kabsa',
     description: 'Saudi Arabia\'s national dish. Slow-cooked mutton in a rich tomato-and-spice broth over fragrant basmati rice with dried fruits, nuts, and a 12-spice blend.',
     price: 480,
@@ -193,6 +206,7 @@ export const menuItems: MenuItem[] = [
   },
   {
     id: 'rice-02',
+    code: '3002',
     name: 'Chicken Biryani (Arabic Style)',
     description: 'Arabic-style layered biryani with saffron, rose water, caramelised onions, dried apricots, and almonds. Lighter and more fragrant than its Indian counterpart.',
     price: 340,
@@ -206,6 +220,7 @@ export const menuItems: MenuItem[] = [
   },
   {
     id: 'rice-03',
+    code: '3003',
     name: 'Machboos (Fish & Rice)',
     description: 'Bahraini-style spiced fish over rice cooked in a tomato, onion, and loomi (dried lime) broth. Made with fresh catch of the day.',
     price: 420,
@@ -219,6 +234,7 @@ export const menuItems: MenuItem[] = [
   },
   {
     id: 'rice-04',
+    code: '3004',
     name: 'Sayadieh',
     description: 'Lebanese fisherman\'s rice — caramelised onions and spiced rice topped with crispy fried fish. Served with tahini sauce and lemon.',
     price: 390,
@@ -233,6 +249,7 @@ export const menuItems: MenuItem[] = [
   // ─── MEZZE & STARTERS ──────────────────────────────────────────────────────
   {
     id: 'mezze-01',
+    code: '4001',
     name: 'Grand Mezze Platter',
     description: 'A feast of Hummus, Mutabbal (smoky aubergine dip), Fattoush salad, Tabbouleh, Labneh, olives, and pickles. Served with a basket of warm pita bread.',
     price: 380,
@@ -246,6 +263,7 @@ export const menuItems: MenuItem[] = [
   },
   {
     id: 'mezze-02',
+    code: '4002',
     name: 'Classic Hummus',
     description: 'Stone-ground chickpeas blended with premium tahini, fresh lemon, and garlic. Drizzled with extra-virgin olive oil and dusted with paprika. Served with warm pita.',
     price: 140,
@@ -258,6 +276,7 @@ export const menuItems: MenuItem[] = [
   },
   {
     id: 'mezze-03',
+    code: '4003',
     name: 'Mutabbal (Baba Ganoush)',
     description: 'Charcoal-roasted aubergine blended with tahini, garlic, lemon, and pomegranate molasses. Topped with pomegranate seeds and fresh mint.',
     price: 160,
@@ -270,6 +289,7 @@ export const menuItems: MenuItem[] = [
   },
   {
     id: 'mezze-04',
+    code: '4004',
     name: 'Fattoush Salad',
     description: 'Fresh romaine, tomatoes, cucumber, radish, and mint tossed in a sumac-pomegranate dressing, topped with crispy fried pita chips.',
     price: 160,
@@ -282,6 +302,7 @@ export const menuItems: MenuItem[] = [
   },
   {
     id: 'mezze-05',
+    code: '4005',
     name: 'Tabbouleh',
     description: 'Finely chopped fresh parsley, mint, tomato, and spring onion, dressed with lemon juice and olive oil. A Lebanese classic done right.',
     price: 150,
@@ -294,6 +315,7 @@ export const menuItems: MenuItem[] = [
   },
   {
     id: 'mezze-06',
+    code: '4006',
     name: 'Falafel Plate',
     description: 'Six golden crispy falafel balls made from freshly soaked chickpeas and herbs, served with tahini dip, pickles, and pita bread.',
     price: 180,
@@ -306,6 +328,7 @@ export const menuItems: MenuItem[] = [
   },
   {
     id: 'mezze-07',
+    code: '4007',
     name: 'Stuffed Grape Leaves (Warak Dawali)',
     description: 'Hand-rolled vine leaves stuffed with herbed rice, tomato, and lemon. Cooked until tender and served with yoghurt and lemon wedges.',
     price: 200,
@@ -318,6 +341,7 @@ export const menuItems: MenuItem[] = [
   },
   {
     id: 'mezze-08',
+    code: '4008',
     name: 'Harissa Soup',
     description: 'A hearty slow-cooked wheat and shredded chicken soup, seasoned with cumin and finished with ghee. Warming and deeply nourishing.',
     price: 180,
@@ -333,6 +357,7 @@ export const menuItems: MenuItem[] = [
   // ─── BREADS & SIDES ────────────────────────────────────────────────────────
   {
     id: 'bread-01',
+    code: '5001',
     name: 'Tandoor Khubz (Arabic Bread)',
     description: 'Freshly baked soft Arabic flatbread from our clay tandoor. Comes in pairs. The perfect companion to any Mezze or dip.',
     price: 60,
@@ -346,6 +371,7 @@ export const menuItems: MenuItem[] = [
   },
   {
     id: 'bread-02',
+    code: '5002',
     name: 'Cheese Manakish',
     description: 'Arabic flatbread topped with a blend of Akkawi and mozzarella cheeses, baked until golden and bubbly in our wood-fired oven.',
     price: 160,
@@ -358,6 +384,7 @@ export const menuItems: MenuItem[] = [
   },
   {
     id: 'bread-03',
+    code: '5003',
     name: 'Za\'atar Manakish',
     description: 'Thin Arabic flatbread generously spread with a blend of za\'atar (wild thyme), sumac, sesame, and premium olive oil. Baked until crisp.',
     price: 120,
@@ -370,6 +397,7 @@ export const menuItems: MenuItem[] = [
   },
   {
     id: 'bread-04',
+    code: '5004',
     name: 'Saffron Rice (Side)',
     description: 'A generous portion of our signature saffron-infused basmati rice, cooked with whole spices, caramelised onions, and a touch of rose water.',
     price: 120,
@@ -383,6 +411,7 @@ export const menuItems: MenuItem[] = [
   },
   {
     id: 'bread-05',
+    code: '5005',
     name: 'Crispy Fries',
     description: 'Double-fried golden potato fries seasoned with our house Arabic spice mix. Served with garlic aioli and tomato sauce.',
     price: 100,
@@ -397,6 +426,7 @@ export const menuItems: MenuItem[] = [
   // ─── DESSERTS ──────────────────────────────────────────────────────────────
   {
     id: 'dessert-01',
+    code: '6001',
     name: 'Umm Ali',
     description: 'Egypt\'s beloved warm bread pudding — layers of crispy puff pastry soaked in cream and milk, baked with coconut, raisins, and pistachios until golden. A timeless Arabic dessert.',
     price: 180,
@@ -409,6 +439,7 @@ export const menuItems: MenuItem[] = [
   },
   {
     id: 'dessert-02',
+    code: '6002',
     name: 'Kunafa',
     description: 'Classic Palestinian Kunafa — shredded wheat pastry filled with stretchy Akkawi cheese, soaked in orange blossom sugar syrup, and garnished with crushed pistachios. Served warm.',
     price: 200,
@@ -421,6 +452,7 @@ export const menuItems: MenuItem[] = [
   },
   {
     id: 'dessert-03',
+    code: '6003',
     name: 'Baklava (6 pcs)',
     description: 'Six pieces of golden layered phyllo pastry filled with a blend of walnuts and pistachios, soaked in honey and rose water syrup.',
     price: 160,
@@ -434,6 +466,7 @@ export const menuItems: MenuItem[] = [
   },
   {
     id: 'dessert-04',
+    code: '6004',
     name: 'Basbousa (Semolina Cake)',
     description: 'Traditional Egyptian semolina and coconut cake soaked in rose water syrup and topped with an almond. Light, moist, and irresistibly fragrant.',
     price: 140,
@@ -446,6 +479,7 @@ export const menuItems: MenuItem[] = [
   },
   {
     id: 'dessert-05',
+    code: '6005',
     name: 'Dates & Cream',
     description: 'Medjool dates stuffed with almond cream and served with a drizzle of honey and crushed pistachio. A light and regal end to your meal.',
     price: 120,
@@ -460,6 +494,7 @@ export const menuItems: MenuItem[] = [
   // ─── BEVERAGES ─────────────────────────────────────────────────────────────
   {
     id: 'bev-01',
+    code: '7001',
     name: 'Arabic Qahwa (Coffee)',
     description: 'Traditional Arabian green coffee brewed with saffron, cardamom, and cloves. Served in a dallah (Arabic coffee pot) with dates. The essence of Arabian hospitality.',
     price: 100,
@@ -473,6 +508,7 @@ export const menuItems: MenuItem[] = [
   },
   {
     id: 'bev-02',
+    code: '7002',
     name: 'Mint Lemonade',
     description: 'Freshly squeezed lemons blended with crushed mint, sugar, and ice. Bright, refreshing, and the perfect companion for a Mandi feast.',
     price: 80,
@@ -485,6 +521,7 @@ export const menuItems: MenuItem[] = [
   },
   {
     id: 'bev-03',
+    code: '7003',
     name: 'Rose Water Lemonade',
     description: 'A floral twist on classic lemonade — fresh lemon juice with rose water, a pinch of saffron, and crushed ice. Delicate and fragrant.',
     price: 90,
@@ -497,6 +534,7 @@ export const menuItems: MenuItem[] = [
   },
   {
     id: 'bev-04',
+    code: '7004',
     name: 'Mango Lassi',
     description: 'Thick Alphonso mango blended with chilled yoghurt and a whisper of cardamom. Cooling and indulgent.',
     price: 100,
@@ -509,6 +547,7 @@ export const menuItems: MenuItem[] = [
   },
   {
     id: 'bev-05',
+    code: '7005',
     name: 'Jallab Juice',
     description: 'A classic Levantine drink made from grape juice, rose water, and pomegranate molasses, served over ice with raisins and pine nuts.',
     price: 110,
@@ -521,6 +560,7 @@ export const menuItems: MenuItem[] = [
   },
   {
     id: 'bev-06',
+    code: '7006',
     name: 'Karak Chai',
     description: 'Strong milk tea brewed with cardamom, saffron, and cinnamon — the Gulf\'s answer to chai. Rich, warming, and deeply aromatic.',
     price: 70,
@@ -533,6 +573,7 @@ export const menuItems: MenuItem[] = [
   },
   {
     id: 'bev-07',
+    code: '7007',
     name: 'Fresh Watermelon Juice',
     description: 'Cold-pressed fresh watermelon juice with a squeeze of lime. Pure, simple, and utterly refreshing.',
     price: 80,

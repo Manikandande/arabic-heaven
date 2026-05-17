@@ -69,7 +69,7 @@ export default function AdminMenu() {
           <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'var(--font-body)', fontSize: '0.82rem' }}>
             <thead>
               <tr style={{ borderBottom: '1px solid #e5ddd5', backgroundColor: '#faf6f0' }}>
-                {['Code', 'Item', 'Category', 'Price', 'Status', 'Toggle'].map(h => (
+                {['Item Code', 'Item', 'Category', 'Price', 'Status', 'Toggle'].map(h => (
                   <th key={h} style={{ padding: '0.75rem 1rem', textAlign: 'left', fontFamily: 'var(--font-heading)', fontSize: '0.6rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: '#888', fontWeight: 'normal' }}>{h}</th>
                 ))}
               </tr>
@@ -81,12 +81,13 @@ export default function AdminMenu() {
                   <tr key={item.id} style={{ borderBottom: '1px solid #f0ebe5', opacity: isSoldOut ? 0.7 : 1 }}>
                     <td style={{ padding: '0.75rem 1rem' }}>
                       <span style={{ fontFamily: 'var(--font-heading)', fontSize: '0.68rem', letterSpacing: '0.1em', color: 'var(--color-gold)', backgroundColor: 'rgba(200,150,12,0.08)', padding: '0.2rem 0.5rem', display: 'inline-block' }}>
-                        {itemCode(item.id)}
+                        {item.code}
                       </span>
                     </td>
                     <td style={{ padding: '0.75rem 1rem' }}>
                       <p style={{ color: 'var(--color-espresso)', fontWeight: isSoldOut ? 'normal' : 600 }}>{item.name}</p>
                       <p style={{ color: '#aaa', fontSize: '0.7rem', marginTop: '2px' }}>{item.emoji}</p>
+                      <p style={{ color: '#bbb', fontSize: '0.6rem', marginTop: '4px', fontFamily: 'var(--font-heading)', letterSpacing: '0.04em' }}>ID: {item.id}</p>
                     </td>
                     <td style={{ padding: '0.75rem 1rem', color: '#888', textTransform: 'capitalize' }}>{item.category}</td>
                     <td style={{ padding: '0.75rem 1rem', color: 'var(--color-gold)', fontFamily: 'var(--font-heading)' }}>₹{item.price}</td>
@@ -112,20 +113,3 @@ export default function AdminMenu() {
   )
 }
 
-const CODE_PREFIX: Record<string, string> = {
-  mandi:   'MND',
-  grill:   'GRL',
-  rice:    'RIC',
-  mezze:   'MZZ',
-  bread:   'BRD',
-  dessert: 'DST',
-  bev:     'BEV',
-}
-
-function itemCode(id: string): string {
-  const parts  = id.split('-')
-  const num    = parts[parts.length - 1].padStart(2, '0')
-  const cat    = parts.slice(0, -1).join('-')
-  const prefix = CODE_PREFIX[cat] ?? cat.toUpperCase().slice(0, 3)
-  return `${prefix}-${num}`
-}

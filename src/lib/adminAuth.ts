@@ -1,34 +1,64 @@
-import { createClient } from '@/lib/supabase/server'
-import { prisma } from '@/lib/prisma'
+import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { NextRequest, NextResponse } from 'next/server'
+import { SignJWT, jwtVerify } from 'jose'
+import { prisma } from '@/lib/prisma'
 
-const ADMIN_ROLES = ['ADMIN', 'MANAGER'] as const
+const COOKIE_NAME = 'admin_token'
+const COOKIE_MAX_AGE = 60 * 60 * 8 // 8 hours
 
-// Server component helper — redirects if not admin
+function secret() {
+  const s = process.env.ADMIN_JWT_SECRET
+  if (!s) throw new Error('ADMIN_JWT_SECRET is not set')
+  return new TextEncoder().encode(s)
+}
+
+export async function signAdminToken(adminId: string): Promise<string> {
+  return new SignJWT({ sub: adminId })
+    .setProtectedHeader({ alg: 'HS256' })
+    .setIssuedAt()
+    .setExpirationTime('8h')
+    .sign(secret())
+}
+
+export async function verifyAdminToken(token: string): Promise<string | null> {
+  try {
+    const { payload } = await jwtVerify(token, secret())
+    return payload.sub ?? null
+  } catch {
+    return null
+  }
+}
+
+// Server component helper — redirects to /admin/login if not authenticated
 export async function requireAdmin() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/signin?next=/admin')
+  const cookieStore = await cookies()
+  const token = cookieStore.get(COOKIE_NAME)?.value
+  if (!token) redirect('/admin/login')
 
-  const profile = await prisma.profile.findUnique({ where: { id: user.id } })
-  if (!profile || !ADMIN_ROLES.includes(profile.role as typeof ADMIN_ROLES[number])) {
-    redirect('/')
-  }
-  return { user, profile }
+  const adminId = await verifyAdminToken(token)
+  if (!adminId) redirect('/admin/login')
+
+  const admin = await prisma.adminUser.findUnique({ where: { id: adminId } })
+  if (!admin) redirect('/admin/login')
+
+  return admin
 }
 
-// API route helper — returns 401/403 if not admin
+// API route helper — returns 401 if not authenticated
 export async function verifyAdmin(req: NextRequest): Promise<
-  { ok: true; userId: string } | NextResponse
+  { ok: true; adminId: string } | NextResponse
 > {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const token = req.cookies.get(COOKIE_NAME)?.value
+  if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const profile = await prisma.profile.findUnique({ where: { id: user.id } })
-  if (!profile || !ADMIN_ROLES.includes(profile.role as typeof ADMIN_ROLES[number])) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-  }
-  return { ok: true, userId: user.id }
+  const adminId = await verifyAdminToken(token)
+  if (!adminId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  const admin = await prisma.adminUser.findUnique({ where: { id: adminId } })
+  if (!admin) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  return { ok: true, adminId }
 }
+
+export { COOKIE_NAME, COOKIE_MAX_AGE }

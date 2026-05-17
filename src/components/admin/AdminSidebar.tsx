@@ -58,10 +58,18 @@ export default function AdminSidebar() {
       </nav>
 
       {/* Footer */}
-      <div style={{ padding: '1rem 1.25rem', borderTop: '1px solid rgba(200,150,12,0.15)' }}>
+      <div style={{ padding: '1rem 1.25rem', borderTop: '1px solid rgba(200,150,12,0.15)', display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
         <Link href="/" style={{ fontFamily: 'var(--font-body)', fontSize: '0.72rem', color: 'rgba(253,246,238,0.35)', textDecoration: 'none' }}>
           ← Back to site
         </Link>
+        <button
+          onClick={async () => {
+            await fetch('/api/admin/auth/logout', { method: 'POST' })
+            window.location.href = '/admin/login'
+          }}
+          style={{ background: 'none', border: 'none', padding: 0, fontFamily: 'var(--font-body)', fontSize: '0.72rem', color: 'rgba(220,38,38,0.6)', cursor: 'pointer', textAlign: 'left' }}>
+          Sign out
+        </button>
       </div>
     </aside>
   )

@@ -39,6 +39,18 @@ model Restaurant {
   @@map("restaurants")
 }
 
+// ─── Admin Users (separate from customer profiles) ───────────────────────────
+
+model AdminUser {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  createdAt    DateTime @default(now())
+
+  @@map("admin_users")
+}
+
 // ─── User Profiles ────────────────────────────────────────────────────────────
 
 model Profile {

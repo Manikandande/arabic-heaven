@@ -18,15 +18,11 @@ const PAY_METHODS  = ['CASH', 'UPI', 'CARD']
 const PAYMENT_COLOR: Record<string, string> = {
   PAID: '#059669', UNPAID: '#d97706', REFUNDED: '#6366f1', FAILED: '#dc2626',
 }
-const STATUS_COLOR: Record<string, string> = {
-  PENDING: '#d97706', CONFIRMED: '#2563eb', PREPARING: '#7c3aed',
-  READY: '#059669', DELIVERED: '#64748b', CANCELLED: '#dc2626',
-}
 
 // ─── Page ────────────────────────────────────────────────────────────────────
 
 export default function AdminBilling() {
-  const [bills, setBills]     = useState<any[]>([])
+  const [bills, setBills]               = useState<any[]>([])
   const [billsLoading, setBillsLoading] = useState(true)
   const [showBills, setShowBills]       = useState(true)
 
@@ -42,18 +38,12 @@ export default function AdminBilling() {
 
   return (
     <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start', minHeight: '100%' }}>
-
-      {/* POS Terminal — always on screen */}
       <div style={{ flex: 1, minWidth: 0 }}>
         <POSTerminal onOrderCreated={loadBills} />
       </div>
-
-      {/* Bills panel — toggleable */}
       <div style={{ width: showBills ? '340px' : '0', flexShrink: 0, overflow: 'hidden', transition: 'width 0.2s ease' }}>
         <BillsPanel bills={bills} loading={billsLoading} onToggle={() => setShowBills(s => !s)} />
       </div>
-
-      {/* Collapsed toggle */}
       {!showBills && (
         <button onClick={() => setShowBills(true)}
           style={{ position: 'fixed', top: '50%', right: '0', transform: 'translateY(-50%)', writingMode: 'vertical-rl', padding: '0.75rem 0.4rem', backgroundColor: '#fff', border: '1px solid #e5ddd5', borderRight: 'none', fontFamily: 'var(--font-heading)', fontSize: '0.6rem', letterSpacing: '0.15em', cursor: 'pointer', color: '#888', zIndex: 10 }}>
@@ -67,29 +57,44 @@ export default function AdminBilling() {
 // ─── POS Terminal ─────────────────────────────────────────────────────────────
 
 function POSTerminal({ onOrderCreated }: { onOrderCreated: () => void }) {
-  const searchRef   = useRef<HTMLInputElement>(null)
-  const orderBtnRef = useRef<HTMLButtonElement>(null)
+  // DOM refs
+  const searchRef    = useRef<HTMLInputElement>(null)
+  const orderBtnRef  = useRef<HTMLButtonElement>(null)
+  const guestNameRef = useRef<HTMLInputElement>(null)
+  const discountRef  = useRef<HTMLInputElement>(null)
+  const notesRef     = useRef<HTMLInputElement>(null)
+  const gridRef      = useRef<HTMLDivElement>(null)
+  const itemRefs     = useRef<(HTMLButtonElement | null)[]>([])
+  const gridColsRef  = useRef(5) // updated by ResizeObserver
 
-  const [orderType, setOrderType]   = useState('DINE_IN')
-  const [cart, setCart]             = useState<CartItem[]>([])
-  const [guestName, setGuestName]   = useState('')
-  const [guestPhone, setGuestPhone] = useState('')
-  const [discount, setDiscount]     = useState('')
-  const [payMethod, setPayMethod]   = useState('CASH')
-  const [payStatus, setPayStatus]   = useState('UNPAID')
-  const [notes, setNotes]           = useState('')
-  const [catFilter, setCatFilter]   = useState('all')
-  const [search, setSearch]         = useState('')
-  const [tables, setTables]         = useState<any[]>([])
-  const [tableId, setTableId]       = useState('')
-  const [creating, setCreating]     = useState(false)
-  const [error, setError]           = useState('')
-  const [success, setSuccess]       = useState('')
+  // State
+  const [orderType, setOrderType]       = useState('DINE_IN')
+  const [cart, setCart]                 = useState<CartItem[]>([])
+  const [guestName, setGuestName]       = useState('')
+  const [guestPhone, setGuestPhone]     = useState('')
+  const [discount, setDiscount]         = useState('')
+  const [payMethod, setPayMethod]       = useState('CASH')
+  const [payStatus, setPayStatus]       = useState('UNPAID')
+  const [notes, setNotes]               = useState('')
+  const [catFilter, setCatFilter]       = useState('all')
+  const [search, setSearch]             = useState('')
+  const [tables, setTables]             = useState<any[]>([])
+  const [tableId, setTableId]           = useState('')
+  const [creating, setCreating]         = useState(false)
+  const [error, setError]               = useState('')
+  const [success, setSuccess]           = useState('')
   const [highlightIdx, setHighlightIdx] = useState(0)
 
-  // Auto-focus search on mount
+  // Stable refs for keydown handler (avoids stale closures with [] dependency)
+  const cartRef         = useRef(cart);         cartRef.current         = cart
+  const filteredRef     = useRef<typeof menuItems>([]); // set after useMemo
+  const highlightIdxRef = useRef(0);            highlightIdxRef.current = highlightIdx
+  const payMethodRef    = useRef('CASH');       payMethodRef.current    = payMethod
+
   useEffect(() => { searchRef.current?.focus() }, [])
-  useEffect(() => { fetch('/api/admin/tables').then(r => r.json()).then(d => setTables(d.tables ?? [])) }, [])
+  useEffect(() => {
+    fetch('/api/admin/tables').then(r => r.json()).then(d => setTables(d.tables ?? []))
+  }, [])
 
   const filtered = useMemo(() => {
     let items = menuItems.filter(i => i.available)
@@ -100,9 +105,31 @@ function POSTerminal({ onOrderCreated }: { onOrderCreated: () => void }) {
     }
     return items
   }, [catFilter, search])
+  filteredRef.current = filtered
 
-  // Reset highlight when results change
   useEffect(() => { setHighlightIdx(0) }, [filtered.length, search])
+
+  // Track grid column count via ResizeObserver
+  useEffect(() => {
+    const el = gridRef.current
+    if (!el) return
+    const update = () => {
+      const children = Array.from(el.children) as HTMLElement[]
+      if (children.length < 1) return
+      const firstTop = children[0].offsetTop
+      const cols = children.filter(c => c.offsetTop === firstTop).length
+      if (cols > 0) gridColsRef.current = cols
+    }
+    const obs = new ResizeObserver(update)
+    obs.observe(el)
+    update()
+    return () => obs.disconnect()
+  }, [])
+
+  // Scroll highlighted item into view whenever it changes
+  useEffect(() => {
+    itemRefs.current[highlightIdx]?.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+  }, [highlightIdx])
 
   function addItem(item: typeof menuItems[0]) {
     setCart(c => {
@@ -123,50 +150,99 @@ function POSTerminal({ onOrderCreated }: { onOrderCreated: () => void }) {
     setTimeout(() => searchRef.current?.focus(), 0)
   }
 
-  // Global keyboard shortcuts
+  // ── Global keyboard shortcuts ──────────────────────────────────────────────
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
-      const tag = (e.target as HTMLElement).tagName
+      const tag     = (e.target as HTMLElement).tagName
       const inInput = ['INPUT', 'TEXTAREA', 'SELECT'].includes(tag)
+      const inDiscount = document.activeElement === discountRef.current
 
-      // Ctrl+Enter → place order
+      // Ctrl+Enter → place order (works everywhere)
       if (e.ctrlKey && e.key === 'Enter') { e.preventDefault(); orderBtnRef.current?.click(); return }
 
-      // Ctrl+Backspace → clear cart
+      // Ctrl+Backspace → clear cart (works everywhere)
       if (e.ctrlKey && e.key === 'Backspace') { e.preventDefault(); clearCart(); return }
+
+      // Numpad + → add highlighted item (skip when typing in discount)
+      if (e.code === 'NumpadAdd' && !inDiscount) {
+        e.preventDefault()
+        const item = filteredRef.current[highlightIdxRef.current]
+        if (item) addItem(item)
+        return
+      }
+
+      // Numpad - → remove one qty of highlighted item (skip when typing in discount)
+      if (e.code === 'NumpadSubtract' && !inDiscount) {
+        e.preventDefault()
+        const item = filteredRef.current[highlightIdxRef.current]
+        if (item) {
+          const inCart = cartRef.current.find(x => x.id === item.id)
+          if (inCart) setQty(item.id, inCart.qty - 1)
+        }
+        return
+      }
+
+      // F3 → jump to Discount field
+      if (e.key === 'F3') { e.preventDefault(); discountRef.current?.focus(); return }
+
+      // F4 → cycle Payment Method (CASH → UPI → CARD → CASH)
+      if (e.key === 'F4') {
+        e.preventDefault()
+        const idx = PAY_METHODS.indexOf(payMethodRef.current)
+        setPayMethod(PAY_METHODS[(idx + 1) % PAY_METHODS.length])
+        return
+      }
+
+      // F5 → jump to Notes field
+      if (e.key === 'F5') { e.preventDefault(); notesRef.current?.focus(); return }
 
       // / or F2 → focus search
       if (!inInput && (e.key === '/' || e.key === 'F2')) {
         e.preventDefault(); searchRef.current?.focus(); setSearch(''); return
       }
 
-      // Esc → clear search if focused, else blur
-      if (e.key === 'Escape' && document.activeElement === searchRef.current) {
-        setSearch(''); return
-      }
-
       // Alt+D/T/V → order type
-      if (e.altKey && e.key === 'd') { e.preventDefault(); setOrderType('DINE_IN'); return }
+      if (e.altKey && e.key === 'd') { e.preventDefault(); setOrderType('DINE_IN');  return }
       if (e.altKey && e.key === 't') { e.preventDefault(); setOrderType('TAKEAWAY'); return }
       if (e.altKey && e.key === 'v') { e.preventDefault(); setOrderType('DELIVERY'); return }
 
-      // Alt+C / Alt+U / Alt+R → payment method
+      // Alt+C/U/R → payment method
       if (e.altKey && e.key === 'c') { e.preventDefault(); setPayMethod('CASH'); return }
-      if (e.altKey && e.key === 'u') { e.preventDefault(); setPayMethod('UPI'); return }
+      if (e.altKey && e.key === 'u') { e.preventDefault(); setPayMethod('UPI');  return }
       if (e.altKey && e.key === 'r') { e.preventDefault(); setPayMethod('CARD'); return }
+
+      // Arrow keys + Enter when no input is focused → navigate item grid
+      if (!inInput) {
+        const cols = gridColsRef.current
+        const len  = filteredRef.current.length
+        if (e.key === 'ArrowRight') { e.preventDefault(); setHighlightIdx(i => Math.min(i + 1, len - 1)); return }
+        if (e.key === 'ArrowLeft')  { e.preventDefault(); setHighlightIdx(i => Math.max(i - 1, 0));       return }
+        if (e.key === 'ArrowDown')  { e.preventDefault(); setHighlightIdx(i => Math.min(i + cols, len - 1)); return }
+        if (e.key === 'ArrowUp')    { e.preventDefault(); setHighlightIdx(i => Math.max(i - cols, 0));    return }
+        if (e.key === 'Enter') {
+          e.preventDefault()
+          const item = filteredRef.current[highlightIdxRef.current]
+          if (item) addItem(item)
+          return
+        }
+      }
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [cart])
+  }, []) // stable refs + stable setters — no deps needed
 
-  // Search keyboard: Enter adds item, arrows navigate highlight
+  // Search bar keyboard: arrows navigate highlight, Enter adds, Tab → guest name, Esc → grid mode
   function onSearchKey(e: React.KeyboardEvent<HTMLInputElement>) {
-    if (e.key === 'ArrowDown') {
-      e.preventDefault(); setHighlightIdx(i => Math.min(i + 1, filtered.length - 1)); return
+    if (e.key === 'Tab' && !e.shiftKey) {
+      e.preventDefault(); guestNameRef.current?.focus(); return
     }
-    if (e.key === 'ArrowUp') {
-      e.preventDefault(); setHighlightIdx(i => Math.max(i - 1, 0)); return
+    if (e.key === 'Escape') {
+      if (search) { setSearch(''); return }
+      searchRef.current?.blur() // drop out of search → grid arrow-key mode
+      return
     }
+    if (e.key === 'ArrowDown') { e.preventDefault(); setHighlightIdx(i => Math.min(i + 1, filtered.length - 1)); return }
+    if (e.key === 'ArrowUp')   { e.preventDefault(); setHighlightIdx(i => Math.max(i - 1, 0));                   return }
     if (e.key === 'Enter' && filtered.length > 0) {
       e.preventDefault()
       addItem(filtered[highlightIdx])
@@ -195,8 +271,6 @@ function POSTerminal({ onOrderCreated }: { onOrderCreated: () => void }) {
     const data = await res.json()
     setCreating(false)
     if (!res.ok) { setError(data.error ?? 'Failed to create order'); return }
-
-    // Success — reset form, stay on POS
     const msg = `✓ ${data.order.orderNumber}  ·  ₹${data.order.total}  ·  Sent to KOT`
     setSuccess(msg); setTimeout(() => setSuccess(''), 5000)
     clearCart()
@@ -209,23 +283,36 @@ function POSTerminal({ onOrderCreated }: { onOrderCreated: () => void }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
 
-      {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      {/* Header + shortcut bar */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div>
           <h1 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.3rem', color: 'var(--color-espresso)', letterSpacing: '0.04em' }}>Billing & POS</h1>
-          <p style={{ fontFamily: 'var(--font-body)', fontSize: '0.72rem', color: '#aaa', marginTop: '2px' }}>
-            <kbd style={kbdStyle}>/</kbd> search &nbsp;
-            <kbd style={kbdStyle}>Enter</kbd> add item &nbsp;
-            <kbd style={kbdStyle}>Ctrl+Enter</kbd> place order &nbsp;
-            <kbd style={kbdStyle}>Ctrl+⌫</kbd> clear &nbsp;
-            <kbd style={kbdStyle}>Alt+D/T/V</kbd> order type
-          </p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.15rem 0.6rem', marginTop: '4px' }}>
+            {[
+              ['/', 'search'],
+              ['↑↓←→', 'grid'],
+              ['Enter', 'add'],
+              ['Numpad+', '+qty'],
+              ['Numpad−', '−qty'],
+              ['Tab', 'guest'],
+              ['F3', 'discount'],
+              ['F4', 'payment'],
+              ['F5', 'notes'],
+              ['Ctrl+↵', 'place order'],
+              ['Ctrl+⌫', 'clear'],
+              ['Alt+D/T/V', 'type'],
+            ].map(([key, label]) => (
+              <span key={key} style={{ fontFamily: 'var(--font-body)', fontSize: '0.68rem', color: '#aaa' }}>
+                <kbd style={kbdStyle}>{key}</kbd> {label}
+              </span>
+            ))}
+          </div>
         </div>
-        {/* Order type */}
-        <div style={{ display: 'flex', gap: '0.35rem' }}>
+
+        {/* Order type toggle */}
+        <div style={{ display: 'flex', gap: '0.35rem', flexShrink: 0 }}>
           {ORDER_TYPES.map(t => (
-            <button key={t.value} onClick={() => setOrderType(t.value)}
-              title={`Alt+${t.key}`}
+            <button key={t.value} onClick={() => setOrderType(t.value)} title={`Alt+${t.key}`}
               style={{ padding: '0.4rem 0.85rem', border: `1px solid ${orderType === t.value ? 'var(--color-espresso)' : '#e5ddd5'}`, backgroundColor: orderType === t.value ? 'var(--color-espresso)' : '#fff', color: orderType === t.value ? '#fff' : '#888', fontFamily: 'var(--font-heading)', fontSize: '0.62rem', letterSpacing: '0.08em', cursor: 'pointer' }}>
               {t.label} <span style={{ opacity: 0.5, fontSize: '0.55rem' }}>Alt+{t.key}</span>
             </button>
@@ -258,33 +345,38 @@ function POSTerminal({ onOrderCreated }: { onOrderCreated: () => void }) {
 
           {/* Category tabs */}
           <div style={{ display: 'flex', gap: '0.3rem', flexWrap: 'wrap' }}>
-            <button onClick={() => setCatFilter('all')}
-              style={catBtnStyle(catFilter === 'all')}>All</button>
+            <button onClick={() => setCatFilter('all')} style={catBtnStyle(catFilter === 'all')}>All</button>
             {catList.map((c, i) => (
-              <button key={c.id} onClick={() => setCatFilter(c.id)}
-                title={`Alt+${i + 1}`}
+              <button key={c.id} onClick={() => setCatFilter(c.id)} title={`Alt+${i + 1}`}
                 style={catBtnStyle(catFilter === c.id)}>
                 {c.emoji} {c.label}
               </button>
             ))}
           </div>
 
-          {/* Item grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: '0.45rem', maxHeight: 'calc(100vh - 310px)', overflowY: 'auto', paddingRight: '2px' }}>
+          {/* Item grid — arrow keys navigate, always shows active highlight */}
+          <div
+            ref={gridRef}
+            style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: '0.45rem', maxHeight: 'calc(100vh - 330px)', overflowY: 'auto', paddingRight: '2px' }}
+          >
             {filtered.map((item, idx) => {
-              const inCart    = cart.find(x => x.id === item.id)
-              const isHl      = idx === highlightIdx && search.trim().length > 0
+              const inCart = cart.find(x => x.id === item.id)
+              const isHl   = idx === highlightIdx // always show highlight
               return (
-                <button key={item.id} onClick={() => addItem(item)}
-                  style={{ textAlign: 'left', padding: '0.65rem 0.75rem', border: `1.5px solid ${isHl ? 'var(--color-espresso)' : inCart ? 'var(--color-gold)' : '#e5ddd5'}`, backgroundColor: isHl ? '#faf6f0' : inCart ? 'rgba(200,150,12,0.07)' : '#fff', cursor: 'pointer', position: 'relative', transition: 'border-color 0.1s' }}>
+                <button
+                  key={item.id}
+                  ref={el => { itemRefs.current[idx] = el }}
+                  onClick={() => addItem(item)}
+                  style={{ textAlign: 'left', padding: '0.65rem 0.75rem', border: `1.5px solid ${isHl ? 'var(--color-espresso)' : inCart ? 'var(--color-gold)' : '#e5ddd5'}`, backgroundColor: isHl ? '#faf6f0' : inCart ? 'rgba(200,150,12,0.07)' : '#fff', cursor: 'pointer', position: 'relative', transition: 'border-color 0.1s', outline: 'none' }}
+                >
                   {inCart && (
-                    <span style={{ position: 'absolute', top: '5px', right: '5px', width: '19px', height: '19px', borderRadius: '50%', backgroundColor: 'var(--color-gold)', color: '#fff', fontFamily: 'var(--font-heading)', fontSize: '0.62rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <span style={{ position: 'absolute', top: '5px', right: '5px', width: '19px', height: '19px', borderRadius: '50%', backgroundColor: isHl ? 'var(--color-espresso)' : 'var(--color-gold)', color: '#fff', fontFamily: 'var(--font-heading)', fontSize: '0.62rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                       {inCart.qty}
                     </span>
                   )}
-                  <p style={{ fontFamily: 'var(--font-heading)', fontSize: '0.58rem', color: 'var(--color-gold)', letterSpacing: '0.08em', marginBottom: '0.25rem' }}>{item.code}</p>
+                  <p style={{ fontFamily: 'var(--font-heading)', fontSize: '0.58rem', color: isHl ? 'var(--color-espresso)' : 'var(--color-gold)', letterSpacing: '0.08em', marginBottom: '0.25rem' }}>{item.code}</p>
                   <p style={{ fontFamily: 'var(--font-body)', fontSize: '0.76rem', color: 'var(--color-espresso)', fontWeight: 600, lineHeight: 1.3, marginBottom: '0.3rem' }}>{item.name}</p>
-                  <p style={{ fontFamily: 'var(--font-heading)', fontSize: '0.8rem', color: 'var(--color-gold)' }}>₹{item.price}</p>
+                  <p style={{ fontFamily: 'var(--font-heading)', fontSize: '0.8rem', color: isHl ? 'var(--color-espresso)' : 'var(--color-gold)' }}>₹{item.price}</p>
                 </button>
               )
             })}
@@ -294,6 +386,11 @@ function POSTerminal({ onOrderCreated }: { onOrderCreated: () => void }) {
               </div>
             )}
           </div>
+
+          {/* Grid nav hint */}
+          <p style={{ fontFamily: 'var(--font-body)', fontSize: '0.65rem', color: '#bbb', textAlign: 'center' }}>
+            ↑↓←→ navigate · Enter or Numpad+ add · Numpad− remove · Esc from search → grid mode
+          </p>
         </div>
 
         {/* RIGHT — Order panel */}
@@ -301,12 +398,21 @@ function POSTerminal({ onOrderCreated }: { onOrderCreated: () => void }) {
 
           {/* Guest info */}
           <div style={{ padding: '0.85rem', borderBottom: '1px solid #f0ebe5' }}>
-            <p style={sectionLabel}>Guest</p>
+            <p style={sectionLabel}>Guest <span style={{ color: '#ccc', fontWeight: 'normal', letterSpacing: 0 }}>— Tab from search</span></p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-              <input value={guestName} onChange={e => setGuestName(e.target.value)} placeholder="Name (Tab to skip)"
-                style={panelInput} />
-              <input value={guestPhone} onChange={e => setGuestPhone(e.target.value)} placeholder="Phone"
-                style={panelInput} />
+              <input
+                ref={guestNameRef}
+                value={guestName}
+                onChange={e => setGuestName(e.target.value)}
+                placeholder="Name (Tab to skip)"
+                style={panelInput}
+              />
+              <input
+                value={guestPhone}
+                onChange={e => setGuestPhone(e.target.value)}
+                placeholder="Phone"
+                style={panelInput}
+              />
               {orderType === 'DINE_IN' && activeTables.length > 0 && (
                 <select value={tableId} onChange={e => setTableId(e.target.value)} style={panelInput}>
                   <option value="">— Select table —</option>
@@ -319,11 +425,13 @@ function POSTerminal({ onOrderCreated }: { onOrderCreated: () => void }) {
           </div>
 
           {/* Cart */}
-          <div style={{ borderBottom: '1px solid #f0ebe5', minHeight: '120px', maxHeight: '280px', overflowY: 'auto' }}>
+          <div style={{ borderBottom: '1px solid #f0ebe5', minHeight: '120px', maxHeight: '240px', overflowY: 'auto' }}>
             {cart.length === 0
               ? (
                 <div style={{ padding: '2rem 1rem', textAlign: 'center' }}>
-                  <p style={{ fontFamily: 'var(--font-body)', fontSize: '0.78rem', color: '#bbb' }}>Press <kbd style={kbdStyle}>Enter</kbd> after searching to add items</p>
+                  <p style={{ fontFamily: 'var(--font-body)', fontSize: '0.78rem', color: '#bbb' }}>
+                    Press <kbd style={kbdStyle}>Enter</kbd> or <kbd style={kbdStyle}>Numpad+</kbd> to add items
+                  </p>
                 </div>
               )
               : cart.map(item => (
@@ -350,10 +458,19 @@ function POSTerminal({ onOrderCreated }: { onOrderCreated: () => void }) {
               <span style={{ fontFamily: 'var(--font-heading)', fontSize: '0.78rem', color: 'var(--color-espresso)' }}>₹{subtotal}</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
-              <span style={{ fontFamily: 'var(--font-body)', fontSize: '0.78rem', color: '#888' }}>Discount (₹)</span>
-              <input type="number" min={0} max={subtotal} value={discount} onChange={e => setDiscount(e.target.value)}
+              <span style={{ fontFamily: 'var(--font-body)', fontSize: '0.78rem', color: '#888' }}>
+                Discount (₹) <kbd style={{ ...kbdStyle, fontSize: '0.55rem' }}>F3</kbd>
+              </span>
+              <input
+                ref={discountRef}
+                type="number"
+                min={0}
+                max={subtotal}
+                value={discount}
+                onChange={e => setDiscount(e.target.value)}
                 placeholder="0"
-                style={{ width: '64px', padding: '0.2rem 0.45rem', border: '1px solid #e5ddd5', fontFamily: 'var(--font-heading)', fontSize: '0.75rem', color: '#059669', textAlign: 'right', outline: 'none' }} />
+                style={{ width: '64px', padding: '0.2rem 0.45rem', border: '1px solid #e5ddd5', fontFamily: 'var(--font-heading)', fontSize: '0.75rem', color: '#059669', textAlign: 'right', outline: 'none' }}
+              />
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: '0.35rem', borderTop: '1px solid #e5ddd5' }}>
               <span style={{ fontFamily: 'var(--font-heading)', fontSize: '0.92rem', color: 'var(--color-espresso)' }}>Total</span>
@@ -363,7 +480,9 @@ function POSTerminal({ onOrderCreated }: { onOrderCreated: () => void }) {
 
           {/* Payment */}
           <div style={{ padding: '0.75rem 0.85rem', borderBottom: '1px solid #f0ebe5' }}>
-            <p style={sectionLabel}>Payment method</p>
+            <p style={sectionLabel}>
+              Payment method <kbd style={{ ...kbdStyle, fontSize: '0.55rem' }}>F4</kbd> cycle
+            </p>
             <div style={{ display: 'flex', gap: '0.3rem', marginBottom: '0.4rem' }}>
               {PAY_METHODS.map((m, i) => (
                 <button key={m} onClick={() => setPayMethod(m)} title={`Alt+${['C','U','R'][i]}`}
@@ -384,8 +503,13 @@ function POSTerminal({ onOrderCreated }: { onOrderCreated: () => void }) {
 
           {/* Notes */}
           <div style={{ padding: '0.6rem 0.85rem', borderBottom: '1px solid #f0ebe5' }}>
-            <input value={notes} onChange={e => setNotes(e.target.value)} placeholder="Notes (optional)"
-              style={{ ...panelInput, fontSize: '0.76rem' }} />
+            <input
+              ref={notesRef}
+              value={notes}
+              onChange={e => setNotes(e.target.value)}
+              placeholder="Notes (optional) — F5"
+              style={{ ...panelInput, fontSize: '0.76rem' }}
+            />
           </div>
 
           {/* Error */}
@@ -427,12 +551,11 @@ function BillsPanel({ bills, loading, onToggle }: { bills: any[]; loading: boole
     setUpdating(null)
   }
 
-  const total   = bills.filter(b => b.status !== 'CANCELLED').reduce((s, b) => s + b.total, 0)
-  const unpaid  = bills.filter(b => b.paymentStatus === 'UNPAID' && b.status !== 'CANCELLED').length
+  const total  = bills.filter(b => b.status !== 'CANCELLED').reduce((s, b) => s + b.total, 0)
+  const unpaid = bills.filter(b => b.paymentStatus === 'UNPAID' && b.status !== 'CANCELLED').length
 
   return (
     <div style={{ width: '340px', backgroundColor: '#fff', border: '1px solid #e5ddd5', display: 'flex', flexDirection: 'column', maxHeight: 'calc(100vh - 4rem)', overflow: 'hidden' }}>
-      {/* Panel header */}
       <div style={{ padding: '0.85rem 1rem', borderBottom: '1px solid #e5ddd5', backgroundColor: '#faf6f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
         <div>
           <p style={{ fontFamily: 'var(--font-heading)', fontSize: '0.68rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--color-espresso)' }}>Today's Bills</p>
@@ -442,8 +565,6 @@ function BillsPanel({ bills, loading, onToggle }: { bills: any[]; loading: boole
         </div>
         <button onClick={onToggle} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#888', fontSize: '1rem', padding: '0.25rem' }}>✕</button>
       </div>
-
-      {/* Bills list */}
       <div style={{ flex: 1, overflowY: 'auto' }}>
         {loading
           ? <p style={{ padding: '1.5rem', fontFamily: 'var(--font-body)', color: '#888', textAlign: 'center' }}>Loading…</p>

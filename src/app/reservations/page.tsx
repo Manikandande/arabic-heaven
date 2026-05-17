@@ -10,7 +10,7 @@ import { useAuth } from '@/context/AuthContext'
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const DEPOSIT = 50
-const RESTAURANT_UPI = process.env.NEXT_PUBLIC_RESTAURANT_UPI ?? '7942696368@paytm'
+const RESTAURANT_UPI = process.env.NEXT_PUBLIC_RESTAURANT_UPI ?? '7092926440@paytm'
 const RESTAURANT_NAME = 'Arabic Heaven Mandi'
 
 const LUNCH_SLOTS  = ['11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00']
@@ -634,8 +634,8 @@ export default function ReservationsPage() {
                 <h3 style={{ fontFamily: 'var(--font-heading)', fontSize: '0.65rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--color-gold)' }}>Location</h3>
                 {[
                   { icon: '📍', text: '1, By-Pass Road, Ariyapalayam, Villianur, Puducherry – 605110' },
-                  { icon: '📞', text: '+91 79426 96368', href: 'tel:+917942696368' },
-                  { icon: '💬', text: 'WhatsApp us', href: 'https://wa.me/917942696368' },
+                  { icon: '📞', text: '+91 70929 26440', href: 'tel:+917092926440' },
+                  { icon: '💬', text: 'WhatsApp us', href: 'https://wa.me/917092926440' },
                 ].map(({ icon, text, href }) => (
                   <div key={text} style={{ display: 'flex', gap: '0.6rem', alignItems: 'center' }}>
                     <span style={{ fontSize: '0.9rem', flexShrink: 0 }}>{icon}</span>

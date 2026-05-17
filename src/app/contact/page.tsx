@@ -276,9 +276,9 @@ export default function ContactPage() {
                 </h3>
                 {[
                   { icon: '📍', label: 'Address', value: '1, By-Pass Road, Ariyapalayam, Villianur, Puducherry – 605110' },
-                  { icon: '📞', label: 'Phone', value: '+91 79426 96368', href: 'tel:+917942696368' },
+                  { icon: '📞', label: 'Phone', value: '+91 70929 26440', href: 'tel:+917092926440' },
                   { icon: '📧', label: 'Email', value: 'hello@arabicheaven.com', href: 'mailto:hello@arabicheaven.com' },
-                  { icon: '💬', label: 'WhatsApp', value: 'Chat with us', href: 'https://wa.me/917942696368' },
+                  { icon: '💬', label: 'WhatsApp', value: 'Chat with us', href: 'https://wa.me/917092926440' },
                 ].map(({ icon, label, value, href }) => (
                   <div key={label} style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start', paddingBottom: '0.75rem', borderBottom: '1px solid var(--color-border)' }}>
                     <span style={{ fontSize: '1rem', flexShrink: 0, marginTop: '1px' }}>{icon}</span>

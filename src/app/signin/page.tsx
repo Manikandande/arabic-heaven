@@ -41,7 +41,7 @@ function SignInForm() {
       provider: 'google',
       options: { redirectTo: `${location.origin}/auth/callback?next=${encodeURIComponent(next)}` },
     })
-    if (error) setError(friendlyError(error.message))
+    if (error) setError(error.message)
   }
 
   return (

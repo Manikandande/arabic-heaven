@@ -236,7 +236,7 @@ export default function Footer() {
             <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
               {[
                 { Icon: MapPin, text: '1, By-Pass Road, Ariyapalayam, Villianur, Puducherry – 605110' },
-                { Icon: Phone,  text: '+91 70929 26440', href: 'tel:+917092926440' },
+                { Icon: Phone,  text: '+91 63805 51661', href: 'tel:+916380551661' },
                 { Icon: Mail,   text: 'hello@arabicheaven.com', href: 'mailto:hello@arabicheaven.com' },
               ].map(({ Icon, text, href }) => (
                 <li key={text} style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>

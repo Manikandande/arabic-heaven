@@ -22,7 +22,7 @@ async function getOrCreateRestaurant() {
         name: 'Arabic Heaven Mandi',
         address: 'Pondicherry',
         city: 'Pondicherry',
-        phone: '+917092926440',
+        phone: '+916380551661',
         email: 'info@arabicheaven.com',
       },
     })

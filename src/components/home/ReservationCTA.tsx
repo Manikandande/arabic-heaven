@@ -125,7 +125,7 @@ export default function ReservationCTA() {
             Book a Table Online
           </Link>
           <a
-            href="tel:+917092926440"
+            href="tel:+916380551661"
             className="btn-outline-light"
           >
             📞 &nbsp; Call to Reserve

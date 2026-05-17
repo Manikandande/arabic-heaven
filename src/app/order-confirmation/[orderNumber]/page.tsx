@@ -51,7 +51,7 @@ export default async function OrderConfirmationPage({
             <div style={{ backgroundColor: 'var(--color-bg-secondary)', border: '1px solid var(--color-border)', borderRadius: '6px', padding: '1.1rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
               <Phone size={20} color="var(--color-terra)" strokeWidth={1.5} />
               <p style={{ fontFamily: 'var(--font-heading)', fontSize: '0.65rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-espresso)' }}>Need Help?</p>
-              <a href="tel:+917092926440" style={{ fontFamily: 'var(--font-body)', fontSize: '0.82rem', color: 'var(--color-terra)', textDecoration: 'none' }}>+91 70929 26440</a>
+              <a href="tel:+916380551661" style={{ fontFamily: 'var(--font-body)', fontSize: '0.82rem', color: 'var(--color-terra)', textDecoration: 'none' }}>+91 63805 51661</a>
             </div>
           </div>
 

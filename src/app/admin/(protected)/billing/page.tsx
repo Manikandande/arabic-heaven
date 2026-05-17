@@ -182,22 +182,16 @@ function POSTerminal({ onOrderCreated }: { onOrderCreated: () => void }) {
         return
       }
 
-      // F3 → jump to Discount field
-      if (e.key === 'F3') { e.preventDefault(); discountRef.current?.focus(); return }
-
-      // F4 → cycle Payment Method (CASH → UPI → CARD → CASH)
-      if (e.key === 'F4') {
+      // Alt+P → cycle Payment Method (CASH → UPI → CARD → CASH)
+      if (e.altKey && e.key === 'p') {
         e.preventDefault()
         const idx = PAY_METHODS.indexOf(payMethodRef.current)
         setPayMethod(PAY_METHODS[(idx + 1) % PAY_METHODS.length])
         return
       }
 
-      // F5 → jump to Notes field
-      if (e.key === 'F5') { e.preventDefault(); notesRef.current?.focus(); return }
-
-      // / or F2 → focus search
-      if (!inInput && (e.key === '/' || e.key === 'F2')) {
+      // / → focus search (when not already in an input)
+      if (!inInput && e.key === '/') {
         e.preventDefault(); searchRef.current?.focus(); setSearch(''); return
       }
 
@@ -294,13 +288,13 @@ function POSTerminal({ onOrderCreated }: { onOrderCreated: () => void }) {
               ['Enter', 'add'],
               ['Numpad+', '+qty'],
               ['Numpad−', '−qty'],
-              ['Tab', 'guest'],
-              ['F3', 'discount'],
-              ['F4', 'payment'],
-              ['F5', 'notes'],
+              ['Tab', 'next section'],
+              ['Shift+Tab', 'prev section'],
               ['Ctrl+↵', 'place order'],
               ['Ctrl+⌫', 'clear'],
-              ['Alt+D/T/V', 'type'],
+              ['Alt+D/T/V', 'order type'],
+              ['Alt+P', 'payment method'],
+              ['Alt+C/U/R', 'cash/upi/card'],
             ].map(([key, label]) => (
               <span key={key} style={{ fontFamily: 'var(--font-body)', fontSize: '0.68rem', color: '#aaa' }}>
                 <kbd style={kbdStyle}>{key}</kbd> {label}
@@ -366,6 +360,7 @@ function POSTerminal({ onOrderCreated }: { onOrderCreated: () => void }) {
                 <button
                   key={item.id}
                   ref={el => { itemRefs.current[idx] = el }}
+                  tabIndex={-1}
                   onClick={() => addItem(item)}
                   style={{ textAlign: 'left', padding: '0.65rem 0.75rem', border: `1.5px solid ${isHl ? 'var(--color-espresso)' : inCart ? 'var(--color-gold)' : '#e5ddd5'}`, backgroundColor: isHl ? '#faf6f0' : inCart ? 'rgba(200,150,12,0.07)' : '#fff', cursor: 'pointer', position: 'relative', transition: 'border-color 0.1s', outline: 'none' }}
                 >
@@ -458,9 +453,7 @@ function POSTerminal({ onOrderCreated }: { onOrderCreated: () => void }) {
               <span style={{ fontFamily: 'var(--font-heading)', fontSize: '0.78rem', color: 'var(--color-espresso)' }}>₹{subtotal}</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
-              <span style={{ fontFamily: 'var(--font-body)', fontSize: '0.78rem', color: '#888' }}>
-                Discount (₹) <kbd style={{ ...kbdStyle, fontSize: '0.55rem' }}>F3</kbd>
-              </span>
+              <span style={{ fontFamily: 'var(--font-body)', fontSize: '0.78rem', color: '#888' }}>Discount (₹)</span>
               <input
                 ref={discountRef}
                 type="number"
@@ -481,7 +474,7 @@ function POSTerminal({ onOrderCreated }: { onOrderCreated: () => void }) {
           {/* Payment */}
           <div style={{ padding: '0.75rem 0.85rem', borderBottom: '1px solid #f0ebe5' }}>
             <p style={sectionLabel}>
-              Payment method <kbd style={{ ...kbdStyle, fontSize: '0.55rem' }}>F4</kbd> cycle
+              Payment method <span style={{ color: '#ccc', fontWeight: 'normal', letterSpacing: 0 }}>Alt+P cycle · Alt+C/U/R direct</span>
             </p>
             <div style={{ display: 'flex', gap: '0.3rem', marginBottom: '0.4rem' }}>
               {PAY_METHODS.map((m, i) => (
@@ -507,7 +500,7 @@ function POSTerminal({ onOrderCreated }: { onOrderCreated: () => void }) {
               ref={notesRef}
               value={notes}
               onChange={e => setNotes(e.target.value)}
-              placeholder="Notes (optional) — F5"
+              placeholder="Notes (optional)"
               style={{ ...panelInput, fontSize: '0.76rem' }}
             />
           </div>
@@ -537,6 +530,69 @@ function POSTerminal({ onOrderCreated }: { onOrderCreated: () => void }) {
 }
 
 // ─── Bills panel ─────────────────────────────────────────────────────────────
+
+function printBill(b: any) {
+  const rows = b.items.map((i: any) =>
+    `<tr>
+      <td>${i.qty}x ${i.name}</td>
+      <td style="text-align:right">₹${(i.price * i.qty).toFixed(0)}</td>
+    </tr>`
+  ).join('')
+
+  const html = `<!DOCTYPE html>
+<html><head>
+  <meta charset="UTF-8">
+  <title>${b.orderNumber}</title>
+  <style>
+    @page { size: 80mm auto; margin: 4mm; }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family: monospace; font-size: 13px; width: 80mm; }
+    h1 { font-size: 18px; text-align: center; letter-spacing: 2px; margin-bottom: 2px; }
+    .sub { text-align: center; font-size: 11px; color: #555; margin-bottom: 6px; }
+    .dash { border-top: 1px dashed #000; margin: 6px 0; }
+    table { width: 100%; border-collapse: collapse; }
+    td { padding: 2px 0; vertical-align: top; }
+    .right { text-align: right; }
+    .bold { font-weight: bold; }
+    .lg { font-size: 15px; }
+    .footer { text-align: center; font-size: 11px; margin-top: 8px; }
+  </style>
+</head><body>
+  <h1>Arabic Heaven</h1>
+  <p class="sub">Pondicherry</p>
+  <div class="dash"></div>
+  <table>
+    <tr><td>Bill No</td><td class="right">${b.orderNumber}</td></tr>
+    <tr><td>Date</td><td class="right">${new Date(b.createdAt).toLocaleString('en-IN', { dateStyle: 'short', timeStyle: 'short' })}</td></tr>
+    <tr><td>Type</td><td class="right">${b.type.replace('_', '-')}</td></tr>
+    ${b.guestName ? `<tr><td>Guest</td><td class="right">${b.guestName}</td></tr>` : ''}
+    ${b.guestPhone ? `<tr><td>Phone</td><td class="right">${b.guestPhone}</td></tr>` : ''}
+  </table>
+  <div class="dash"></div>
+  <table>${rows}</table>
+  <div class="dash"></div>
+  <table>
+    <tr><td>Subtotal</td><td class="right">₹${b.subtotal.toFixed(0)}</td></tr>
+    ${b.discount > 0 ? `<tr><td>Discount</td><td class="right">-₹${b.discount.toFixed(0)}</td></tr>` : ''}
+    <tr class="bold lg"><td>TOTAL</td><td class="right">₹${b.total.toFixed(0)}</td></tr>
+  </table>
+  <div class="dash"></div>
+  <table>
+    <tr><td>Payment</td><td class="right">${b.paymentMethod ?? 'CASH'}</td></tr>
+    <tr><td>Status</td><td class="right">${b.paymentStatus}</td></tr>
+  </table>
+  <div class="dash"></div>
+  <p class="footer">Thank you for visiting Arabic Heaven!</p>
+  <p class="footer">We hope to see you again soon.</p>
+</body></html>`
+
+  const w = window.open('', '_blank', 'width=340,height=600,toolbar=0,scrollbars=0')
+  if (!w) { alert('Allow pop-ups to print bills'); return }
+  w.document.write(html)
+  w.document.close()
+  w.focus()
+  setTimeout(() => { w.print(); w.close() }, 250)
+}
 
 function BillsPanel({ bills, loading, onToggle }: { bills: any[]; loading: boolean; onToggle: () => void }) {
   const [expanded, setExpanded] = useState<string | null>(null)
@@ -597,12 +653,18 @@ function BillsPanel({ bills, loading, onToggle }: { bills: any[]; loading: boole
                         <span style={{ color: 'var(--color-gold)', fontFamily: 'var(--font-heading)' }}>₹{((item.price ?? item.unitPrice) * (item.qty ?? item.quantity)).toFixed(0)}</span>
                       </div>
                     ))}
-                    {b.paymentStatus === 'UNPAID' && b.status !== 'CANCELLED' && (
-                      <button onClick={() => markPaid(b.id)} disabled={updating === b.id}
-                        style={{ marginTop: '0.5rem', width: '100%', padding: '0.35rem', backgroundColor: '#059669', color: '#fff', border: 'none', fontFamily: 'var(--font-heading)', fontSize: '0.6rem', letterSpacing: '0.1em', cursor: 'pointer' }}>
-                        {updating === b.id ? '…' : '✓ Mark Paid'}
+                    <div style={{ display: 'flex', gap: '0.3rem', marginTop: '0.5rem' }}>
+                      {b.paymentStatus === 'UNPAID' && b.status !== 'CANCELLED' && (
+                        <button onClick={() => markPaid(b.id)} disabled={updating === b.id}
+                          style={{ flex: 1, padding: '0.35rem', backgroundColor: '#059669', color: '#fff', border: 'none', fontFamily: 'var(--font-heading)', fontSize: '0.6rem', letterSpacing: '0.1em', cursor: 'pointer' }}>
+                          {updating === b.id ? '…' : '✓ Mark Paid'}
+                        </button>
+                      )}
+                      <button onClick={() => printBill(b)}
+                        style={{ flex: 1, padding: '0.35rem', backgroundColor: '#fff', color: 'var(--color-espresso)', border: '1px solid var(--color-espresso)', fontFamily: 'var(--font-heading)', fontSize: '0.6rem', letterSpacing: '0.1em', cursor: 'pointer' }}>
+                        🖨 Print Bill
                       </button>
-                    )}
+                    </div>
                   </div>
                 )}
               </div>
